@@ -52,7 +52,7 @@ or unzip the [latest release](https://github.com/octantbio/octopus/releases) tar
 
 ## Linking Data
 
-As OCTOPUS uses `make` to orchestrate everything, there are some conventions your data must adhere to. First, deposit the output folders from your sequencing run must be deposited in the [data](data) directory
+As OCTOPUS uses `make` to orchestrate everything, there are some conventions your data must adhere to. First, deposit the output folder from your sequencing run in the [data](data) directory
 
 ```
 cp -r /path/to/run-id /path/to/octopus/data
@@ -64,7 +64,7 @@ Alternatively, you can manually add fastq's to the [pipeline](pipeline) folder p
 
 ### Reference Library
 
-If you know the sequences of you plasmids _a priori_ you should include them as `./octopus/data/run-id/input.fasta`. The OCTOPUS pipeline will also automatically parse any barcodes in the form of N's for downstream analyses. If you do not know your input, run `make de-novo` instead to take the pipeline through the _de novo_ assembly step.
+If you know the sequences of you plasmids _a priori_ you should include them as `./octopus/data/run-id/input.fasta`. The OCTOPUS pipeline will also automatically parse any barcodes in the form of N's for downstream analyses. If you do not know your input, run `make de-novo` instead to take the pipeline through the _de novo_ assembly step. If you forget, and run `make all` the pipeline will refuse to run.
 
 ## The Pipeline
 
@@ -115,7 +115,7 @@ This will perform the following steps:
 
 ## 1. Demultiplexing
 
-Due to the nature of the iGenomX protocol, there are effectively two demultiplexing steps. The first is automatically performed by the sequencer and reads standard Illumina indices to split your experiments up (e.g. one index per plate of samples). The second, handled here, uses [Fulcrum Genomic's fgbio](https://github.com/fulcrumgenomics/fgbio) to demultiplex each plate into individual wells. `fgbio` will parse [src/igenomx-meta.txt](src/igenomx-meta.txt) for iGenomX's pre-specified primer indices. If you are using custom primers, please modify `src/igenomx-meta.txt` and/or the `--metadata` flag in the `Makefile`.
+Due to the nature of the iGenomX protocol, there are effectively two demultiplexing steps. The first, automatically performed by the sequencer, reads standard Illumina indices to split your experiments up into plates. The second, handled here, uses [Fulcrum Genomic's fgbio](https://github.com/fulcrumgenomics/fgbio) to demultiplex each plate into individual wells. Note that `fgbio` will parse [src/igenomx-meta.txt](src/igenomx-meta.txt) for iGenomX's pre-specified primer indices. If you are using custom primers, please modify `src/igenomx-meta.txt` and/or the `--metadata` flag in the `Makefile`.
 
 ## 2. Read Pre-processing
 
@@ -135,25 +135,32 @@ new: ref=${CONTAM_REF} \
 
 ## 3. _De Novo_-based Identification
 
-With the reads processed, we then attempt to assemble each well using [SPAdes](http://cab.spbu.ru/software/spades/). Following the JGI protocol, we attempt to merge these reads, quality trim any overlaps, and feed those to SPAdes for assembly in [src/jgi-denovo.sh](src/jgi-denovo.sh). Depending on your application, you may need to modify the SPAdes settings (or try a different assembler).
+With the reads processed, we then attempt to assemble each well using [SPAdes](http://cab.spbu.ru/software/spades/). Following the JGI protocol, we attempt to merge these reads, quality trim any overlaps, and feed those to SPAdes for assembly with [jgi-denovo.sh](src/jgi-denovo.sh). Depending on your application, you may need to modify the SPAdes settings (or try a different assembler).
 
-We then align the _de novo_ assembly products to a user specified library to identify what's in each well using [minimap2](https://lh3.github.io/minimap2/). Since we will not know the orientation of the resulting assembly, we concatenate (or flatten) our reference library before the alignment. This ensures we can align the entire assembly.
+We then align the _de novo_ assembly products to the user specified library (the `input.fasta` that you dropped into your sequencing run folder) to identify what's in each well using [minimap2](https://lh3.github.io/minimap2/). Since we will not know the orientation of the resulting assembly, we concatenate (or flatten) our reference library before the alignment with [flatten-fasta.py](src/flatten-fasta.py). This ensures we can align the entire assembly. For example, if our plasmid (`ref` below) starts at 0, and the _de novo_ assembly (`asm` below) happens to start at 6, the resulting alignment would look like
 
 ```
-ref: 1234567890#1234567890
+ref: 01234567890123456789
+asm:       6789012345
+```
+
+as opposed to
+
+```
+ref: 0123456789
 asm:       6789012345
 ```
 
 It should be noted that the curent version of `SPAdes` (3.13.0) produces an assembly with the same starting and ending k-mer. This will not affect the alignment (see below) but users relying on these assemblies (found in `pipeline/your-run-id/spades-contigs.fasta`) should take this into account.
 
 ```
-ref: 1234567890#1234567890
-asm:       67890123456 <- 6 is repeated!
+ref: 12345678901234567890
+asm:      67890123456 <- 6 is repeated!
 ```
 
 ## 4. Variant Calling
 
-While aligning the _de novo_ assembly will reveal any variants, we want a finer-grained control over the process. Thus, we use [BBMap](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbmap-guide/) to align the processed reads in each well to their cognate plasmid identified by the _de novo_ assembly. We then use [freebayes](https://github.com/ekg/freebayes) to call variants at positions where at least one read makes up 50% of the reads (e.g. 4 reads total, 2 call A, 2 call T -> variant call). To reduce the possibility of a sequencing error introducing a false positive, we exclude basecalls with Q<20. If you would like to adjust these parameters, please edit [src/denovo-guided-assembly.sh](src/denovo-guided-assembly.sh).
+While aligning the _de novo_ assembly will can reveal variants, we wanted a finer-grained control over the process. Thus, we use [BBMap](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbmap-guide/) to align the processed reads in each well to their cognate plasmid identified in the previous stemp. We then use [freebayes](https://github.com/ekg/freebayes) to call variants at positions where at least one read makes up 50% of the reads (e.g. 4 reads total, 2 call A, 2 call T -> variant call). To reduce the possibility of a sequencing error introducing a false positive, we exclude basecalls with Q<20. If you would like to adjust these parameters, please edit [denovo-guided-assembly.sh](src/denovo-guided-assembly.sh).
 
 ## 5. Quality Control
 
@@ -161,11 +168,11 @@ OCTOPUS provides a number of different quality control metrics to ensure the pla
 
 ### Percent Contaminants
 
-The percentage of reads in each well that are from "contaminates" as specified in the [preprocessing](1.-read-preprocessing) step (PhiX, Illumina artifacts, and DH5a).
+The percentage of reads in each well that are from "contaminants" as specified in the [preprocessing](1.-read-preprocessing) step (PhiX, Illumina artifacts, and DH5a).
 
 ### Coverage
 
-We report the percent of bases with <10x and <3x coverage. We reccomend inspecting plasmids with a high percentage of bases at <3x to ensure critical regions are adequately covered. We provide `.bam` files for each well to assist in this process. For example, in `/path/to/octopus/pipeline/your-run-id/` you could run
+We report the percent of bases with <10x and <3x coverage. We recommend inspecting plasmids with a high percentage of bases at <3x to ensure critical regions are adequately covered. We provide `.bam` files for each well to assist in this process. For example, in `/path/to/octopus/pipeline/your-run-id/` you could run
 
 ```
 samtools index plate-id/well-id.map.bam
@@ -186,7 +193,7 @@ ATGA /
 TTAA
 ```
 
-We can use the relative frequencies of the barcodes to determine if the well is contaminated. Importantly, the IgenomX protocol will have a low level of template switching. This will result in a large amount of unique barcodes with few reads
+We can use the relative frequencies of the barcodes to determine if the well is contaminated. Importantly, the iGenomX protocol will have a low level of template switching. This will result in a large amount of unique barcodes with few reads
 
 ```
 AACCTTGGCCTTAA 50
@@ -210,7 +217,7 @@ CTATAGCATTGCAT 1
 ...
 ```
 
-With this in mind, we've developed a filtering heuristic that empirically eliminates wells that are actually contaminated without being too conservative. Specifically, if the second most common barcode is >10% of the total number of reads (10/65 ~15% above), we call that well contaminated. If the second most common barcode is <4% of the total reads, its most template swapping and we call the well clean. Lastly, if the second most common barcode is >4% and <10% (e.g. 5/60 ~8% in the first example), we check the ratio of the second and third most common barcodes is < 2 (e.g. 5/2 > 2). This ratio test is designed to capture our experience of true plasmid contaminations being represented as a distinct population, while barcodes from template swapping primarily being lowly represented. In the case where there is only two barcodes, we will call the well contaminated if the second barcode makes up >4% of the reads.
+With this in mind, we've developed a filtering heuristic that empirically eliminates wells that are actually contaminated without being too conservative. Specifically, if the second most common barcode is >10% of the total number of reads (10/65 ~15% in the above example), we call that well contaminated. If the second most common barcode is <4% of the total reads, it's most likely template swapping and we call the well clean. Lastly, if the second most common barcode is >4% and <10% of the reads (5/60 ~8% in the first example), we check the ratio of the second and third most common barcodes is < 2 (5/2 > 2). This ratio test is designed to capture our observation that true plasmid contaminations are a distinct population, while barcodes from template swapping are uniformly represented with low counts. In the case where there is only two barcodes, we will call the well contaminated if the second barcode makes up >4% of the reads.
 
 # Contributing
 
@@ -223,4 +230,3 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 - [BBTools](docker/bbtools-license)
 - [mlr](docker/mlr-license)
 - [starcode](docker/starcode-license)
-
