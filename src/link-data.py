@@ -1,4 +1,5 @@
 import re
+import sys
 import argparse
 from pathlib import Path
 
@@ -28,15 +29,19 @@ if __name__ == '__main__':
 
     # dump links in to a folder with the run id
     in_dir = Path(args.in_dir)
-    out_dir = Path(args.out_dir) / in_dir.name
+    out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # grab the samplesheet
-    path_to_samplesheet = in_dir.joinpath('SampleSheet.csv').resolve()
-    out_dir.joinpath('SampleSheet.csv').symlink_to(path_to_samplesheet)
+    # grab the reference fasta
+    path_to_reference = in_dir.joinpath('input.fasta').resolve()
+    if path_to_reference.exists():
+        out_dir.joinpath('input.fasta').symlink_to(path_to_reference)
+    else:
+        print('NO INPUT REFERENCE!\nWill run through de novo assembly only.', file=sys.stdout)
 
-    # grab the fastqs
+    # grab the fastqs and drop them into out_dir/fastqs/*.fastq
+    out_dir.joinpath('fastqs').mkdir(exist_ok=True)
     fastqs = in_dir.glob('Data/Intensities/BaseCalls/*.fastq*')
     for fq in fastqs:
         out_name = clean_name(fq)
-        out_dir.joinpath(out_name).symlink_to(fq.resolve())
+        out_dir.joinpath('fastqs/' + out_name).symlink_to(fq.resolve())

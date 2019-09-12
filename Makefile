@@ -3,22 +3,21 @@ SHELL := /bin/bash -euo pipefail
 
 RUNS := $(notdir $(shell find data/ -mindepth 1 -maxdepth 1 -type d))
 
-.PHONY: denovo stats all clean deep-clean
-de-novo: $(addprefix pipeline/, $(addsuffix /spades-contigs.fasta, $(RUNS)))
+.PHONY: denovo stats all clean
+denovo: $(addprefix pipeline/, $(addsuffix /spades-contigs.fasta, $(RUNS)))
 stats: $(addprefix pipeline/, $(addsuffix /aggregated-stats.tsv, $(RUNS)))
 all: stats
 
 # cleanup
 clean:
 	rm -rf pipeline/*
-deep-clean:
-	rm -rf pipeline/* results/*
 
 .SECONDARY:
 
 #===============================================================================
 #                        DeNovo iGenomX Pipeline
 #                        ------------------------
+# 0) Ensure data is linked
 # 1) Demultiplex the reads using IgenomX's protocol
 # 2) Preprocess the reads (trim, filter, error-correct, ...) according to JGI
 # 3) De novo assemble the results
@@ -26,12 +25,20 @@ deep-clean:
 #===============================================================================
 
 # ---------------
+# 0) Data Linking:
+# ---------------
+# link-data.py will traverse a standard illumina directory and clean read names
+pipeline/%: data/%
+	@echo "Cleaning up $<"
+	@python src/link-data.py $< --out-dir $@
+
+# ---------------
 # 1) Demultiplex:
 # ---------------
 # --xapply ensures {1} {2} are processed as we expect (i.e. not a permutation)
 # '{=1 ... }' enables you to run a perl expression on the first position var
 # s:.*/:: strips the paths (think s/.*//); s:_.*:: strips the underscores
-pipeline/%/demux: data/%
+pipeline/%/demux: pipeline/%
 	@echo "Demultiplexing $<"
 	@parallel --xapply fgbio \
 	    --log-level=Error \
@@ -43,13 +50,13 @@ pipeline/%/demux: data/%
 	    --output=$(@D)/'{=1 s:.*/::;s:_.*:: =}' \
 	    --max-mismatches=2 \
 	    --metrics $(@D)/'{=1 s:.*/::;s:_.*:: =}'/igenomx_test_metrics.txt \
-	    ::: $</*_R1*.gz ::: $</*_R2*.gz \
+	    ::: $</fastqs/*_R1*.gz ::: $</fastqs/*_R2*.gz \
 	    && touch $@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ---------------
-# 2) Preproccess:
+# 2) Preprocess:
 # ---------------
 # 0) see src/jgi-preproc.sh for implementation
 # 1) trim adapters, filter contams (ecoli, phiX, etc)
@@ -135,7 +142,7 @@ pipeline/%/input-flatten.fasta: data/%/input.fasta
 # 1) dump all fastas into spades-contigs/Plate_Well.spades-contigs.fasta
 # 2) take only the first record
 pipeline/%/spades-contigs.fasta: pipeline/%/de-novo
-	@echo "Reorienting all contigs in $(<D)"
+	@echo "Aggregating all contigs in $(<D)"
 	@mkdir -p $(@:.fasta=)
 	@parallel \
 	    'well="$$(basename -s .spades-contig.fasta {/})"; \
@@ -169,13 +176,12 @@ pipeline/%/de-novo-ref-stats.tsv: pipeline/%/spades-contigs.sam
 	    > $@
 
 #===============================================================================
-#                         Guided IgenomX Pipeline
-#                         -----------------------
-# 0) Trim, filter, dedupe, error correct reads (src/jgi-preproc.sh)
+#                             Variant Calling
+#                             ---------------
+# 0) Determine well identity with the de novo assembly contig
 # 1) Prep input reference for alignment
-# 2) Align reads to input library
-# 3) Variant calling
-# 4) Contamination Filter
+# 2) Variant calling
+# 3) Variant parsing
 #===============================================================================
 
 # -----------------------
@@ -206,22 +212,14 @@ pipeline/%/input-refs.tsv: pipeline/%/input-refs.fasta
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ------------------
-# 2) Guided Assembly
+# 2) Variant Calling
 # ------------------
-# 0) See /src/guided-assembly.sh for details
-# 1) Align reads to input reference library
-# 2) Parse the sam to get the most common reference (for that well)
-# 3) Re-map reads to that specific reference
-# 4) Call variants with Q>20, >=1 read that makes up 50% of reads at that pos
-
-# pipeline/%/guided: pipeline/%/input-reorient.fasta pipeline/%/preproc pipeline/%/lib/split
-# 	@echo "Guided assembly of all plates in $(<D)"
-# 	@parallel -j48 src/guided-assembly.sh $< {} \
-# 	    ::: $(<D)/Igenomx-*/*.ecc.fq.gz
-# 	@touch $@
-
+# 0) See /src/variant-calling.sh for details
+# 1) get well identity
+# 2) Re-map preprocessed reads to that specific reference
+# 3) Call variants with Q>20, and >=1 read that makes up 50% of reads at that position
 pipeline/%/guided: pipeline/%/de-novo-ref-stats.tsv pipeline/%/preproc pipeline/%/lib/split
-	@echo "Guided assembly of all plates in $(<D)"
+	@echo "Calling variants for all plates in $(<D)"
 	@awk 'NR > 1{print "pipeline",$$1,"lib",$$4".fasta pipeline",$$1,$$2,$$3".ecc.fq.gz"}' \
 	    OFS=/ \
 	    $< \
@@ -260,80 +258,23 @@ pipeline/%/freebayes.tsv: pipeline/%/freebayes-tidy.tsv
 	    $< \
 	    > $@
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# --------------------------
-# 4) Contamination Filtering
-# --------------------------
-# 1) Aggregate reads per reference from the first mapping step
-# 2) Filter wells that map to multiple references
-
-# Aggregate Reads per Ref:
-# ------------------------
-# recall that len=split(...) assigns the length of the array
-pipeline/%/guided-ref-stats.tsv: pipeline/%/guided
-	@echo "Aggregating guided reference alignent stats for $(<D)"
-	@parallel \
-	    awk -v wells="{= s:\.refs\.tsv:: =}" \
-	    \''{len=split(wells, a, "/"); print a[len-2],a[len-1],a[len],$$1,$$2}'\' \
-	    OFS=\"\\t\" {} \
-	    ::: $(<D)/Igenomx-*/*.refs.tsv \
-	| mlr --tsvlite --implicit-csv-header label Run,Plate,Well,Ref,Reads \
-	> $@
-
-# # Filter Wells:
-# # -------------
-# # 1) calculate fraction of reads aligning to each plasmid
-# # 2) take the top two most common alignments
-# # 3) call contamination if 1 < 65% or 2 > 10%
-# # *) we expect some level of template switching -> minor uniform contamination
-# # fraction -p -> percent as [0,100]
-# # -g -> group_by
-# # reshape -s foo,bar -> tidyr::spread(foo,bar)
-# pipeline/%/contam-filter.tsv: pipeline/%/guided-ref-stats.tsv
-# 	@echo "Calculating percent contamination for $(@D)"
-# 	@mlr --tsvlite \
-# 	    fraction -p -f Reads -g Run,Plate,Well \
-# 	    then top -n 2 -f Reads_percent -g Run,Plate,Well \
-# 	    then reshape -s top_idx,Reads_percent_top \
-# 	    then put 'if($$1 < 65 || $$2 > 10){$$Pass_Filter = "FALSE"} else{$$Pass_Filter = "TRUE"}' \
-# 	    < $< \
-# 	    > $@
-
 #===============================================================================
 #                         Ancillary Analysis
 #                         ------------------
 # 1) Coverage
-# 2) Barcode Clash
-# 3) Barcode Filter
-# 4) Aggregation
+# 2) Barcode Filter
+# 3) Aggregation
 #===============================================================================
 
 # -----------------
 # 1) Coverage Info:
 # -----------------
-# 1) Calculate coverage from guided assembly
-# 2) Report percentages of bases with <10x coverage
+# 1) Calculate coverage from variant calling
+# 2) Report percentages of bases with <10x, <3x coverage
 
-# Calculate Coverage:
-# -------------------
-# -aa -> aboslutely all positions; -d0 no max depth
-pipeline/%/coverage.tsv: pipeline/%/guided
-	@echo "Calculating coverage for $(@D)"
-	@parallel \
-	    samtools depth -aa -d0 {} \
-	    \| awk -v path='{= s:\.map\.bam:: =}' \
-	    \''{len=split(path,a,"/"); print a[len-2],a[len-1],a[len],$$1,$$2,$$3}'\' \
-	    OFS=\"\\t\" \
-	    ::: $(<D)/Igenomx-*/*.map.bam \
-	| mlr --tsvlite --implicit-csv-header label Run,Plate,Well,Ref,Pos,Cov \
-	> $@
-
-# < 10x Coverage:
-# ---------------
-# -aa -> aboslutely all positions; -d0 no max depth
-pipeline/%/lt-10.tsv: pipeline/%/guided
-	@echo "Calculating percent bases < 10x coverage for $(@D)"
+# -aa -> absolutely all positions; -d0 no max depth
+pipeline/%/lt-X.tsv: pipeline/%/guided
+	@echo "Calculating percent bases <10x and <3x coverage for $(@D)"
 	@parallel \
 	    samtools depth -aa -d0 {} \
 	    \| awk -v path='{= s:\.map\.bam:: =}' \
@@ -345,24 +286,8 @@ pipeline/%/lt-10.tsv: pipeline/%/guided
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ----------------
-# 2) Barcode Clash
-# ----------------
-# 0) see src/barcode-checker.py for details
-# 1) Grab barcodes from variant caller
-# 2) Check if any barcodes are Levenshtein 3 away from our libraries
-pipeline/%/barcode-clash.tsv: pipeline/%/freebayes-tidy.tsv
-	@echo "Checking barcodes against our library for $(@D)"
-	@awk '{print $$1, $$2, $$3, $$6}' $< \
-	    | python src/barcode-checker.py --format quiet --dist 3 - 2> /dev/null \
-	    | mlr --tsvlite --implicit-csv-header \
-	    label Run,Plate,Well,BC_Clash \
-	    > $@
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 # -----------------
-# 3) Barcode Filter
+# 2) Barcode Filter
 # -----------------
 # 0) see src/bc-contam.py for details
 # 1) parse bcf file for barcode locations
@@ -399,16 +324,16 @@ pipeline/%/barcode-filter.tsv: pipeline/%/freebayes-tidy.tsv
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ----------------------------
-# N) Aggregate All the Things:
+# 3) Aggregate All the Things:
 # ----------------------------
-# unsparsify may be unneccesary depending on how clean your data is
+# unsparsify may be unnecessary depending on how clean your data is
 # replicates right_join
 # http://johnkerl.org/miller-releases/miller-head/doc/faq.html#How_to_rectangularize_after_joins_with_unpaired?
 pipeline/%/aggregated-stats.tsv: \
     pipeline/%/read-stats.tsv \
     pipeline/%/freebayes.tsv \
     pipeline/%/de-novo-ref-stats.tsv \
-    pipeline/%/lt-10.tsv \
+    pipeline/%/lt-X.tsv \
     pipeline/%/barcode-clash.tsv \
     pipeline/%/barcode-filter.tsv \
     pipeline/%/input-refs.tsv
