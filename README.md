@@ -68,20 +68,20 @@ If you know the sequences of you plasmids _a priori_ you should include them as 
 
 ## The Pipeline
 
-With the data in place, we can drop into our docker image with
+After getting the data in place, make sure you `cd` into your octopus folder. From there we can drop into our docker image with
 
 ```
-docker run --rm -it -v /path/to/your/octopus:/root/octopus octant/octopus /bin/bash
+docker run --rm -it -v "$(pwd)":/root/octopus octant/octopus /bin/bash
 ```
 
-This links your octopus folder (`/path/to/your/octopus`) to the docker image (`/root/octopus`). Note that `--rm` makes the image ephemeral so anything written outside of the octopus directory will be lost if you logout of the shell. Next, we can
+This links your octopus folder (`/path/to/your/octopus`) to the docker image (`/root/octopus`). Note that Docker requires you to specify the *absolute* path to the folder (`$(pwd)` is a handy shortcut to do that for you). Also, be aware that that `--rm` makes the image ephemeral so anything written outside of the octopus directory will be lost if you logout of the shell. From the Docker image, we can
 
 ```
-cd /path/to/your/octopus
+cd octopus
 make all
 ```
 
-to run the pipeline on every sequencing run in the `./data` directory and produce `octopus/pipeline/run-id/aggregated-stats.tsv`
+to run the pipeline on every sequencing run in the `./data` directory and produce `octopus/pipeline/run-id/aggregated-stats.tsv`. You will get an error if you did not place the `input.fasta` file under `data/run-id/input.fasta`. If you don't have one try `make denovo`.
 
 ### aggregated-stats.tsv
 
