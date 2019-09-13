@@ -28,9 +28,9 @@ clean:
 # 0) Data Linking:
 # ---------------
 # link-data.py will traverse a standard illumina directory and clean read names
-pipeline/%: data/%
+pipeline/% pipeline/%/input.fasta: data/%
 	@echo "Cleaning up $<"
-	@python src/link-data.py $< --out-dir $@
+	@python src/link-data.py $< --out-dir $(@D)
 
 # ---------------
 # 1) Demultiplex:
@@ -50,7 +50,7 @@ pipeline/%/demux: pipeline/%
 	    --output=$(@D)/'{=1 s:.*/::;s:_.*:: =}' \
 	    --max-mismatches=2 \
 	    --metrics $(@D)/'{=1 s:.*/::;s:_.*:: =}'/igenomx_test_metrics.txt \
-	    ::: $</fastqs/*_R1*.gz ::: $</fastqs/*_R2*.gz \
+	    ::: $(@D)/fastqs/*_R1*.gz ::: $(@D)/fastqs/*_R2*.gz \
 	    && touch $@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -223,7 +223,7 @@ pipeline/%/guided: pipeline/%/de-novo-ref-stats.tsv pipeline/%/preproc pipeline/
 	@awk 'NR > 1{print "pipeline",$$1,"lib",$$4".fasta pipeline",$$1,$$2,$$3".ecc.fq.gz"}' \
 	    OFS=/ \
 	    $< \
-	    | parallel --col-sep ' ' src/denovo-guided-assembly.sh {1} {2} \
+	    | parallel --col-sep ' ' src/variant-calling.sh {1} {2} \
 	    && touch $@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
