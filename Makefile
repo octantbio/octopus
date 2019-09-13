@@ -39,7 +39,7 @@ pipeline/%: data/%
 # '{=1 ... }' enables you to run a perl expression on the first position var
 # s:.*/:: strips the paths (think s/.*//); s:_.*:: strips the underscores
 pipeline/%/demux: pipeline/%
-	@echo "Demultiplexing $<"
+	@echo "Demultiplexing $(<D)"
 	@parallel --xapply fgbio \
 	    --log-level=Error \
 	    DemuxFastqs \
@@ -130,7 +130,7 @@ pipeline/%/de-novo: pipeline/%/preproc
 # Flatten input library:
 # -----------------------
 # Cat input references together to enable mapping through plasmid junction
-pipeline/%/input-flatten.fasta: data/%/input.fasta
+pipeline/%/input-flatten.fasta: pipeline/%/input.fasta
 	@echo "Flattening $<"
 	@python src/flatten-fasta.py $< > $@
 
@@ -188,7 +188,7 @@ pipeline/%/de-novo-ref-stats.tsv: pipeline/%/spades-contigs.sam
 # 1) Prep Input Reference
 # -----------------------
 # flatten-fasta --no-flat cleans input
-pipeline/%/input-refs.fasta: data/%/input.fasta
+pipeline/%/input-refs.fasta: pipeline/%/input.fasta
 	@echo "Sanitizing input fastas"
 	@python src/flatten-fasta.py --no-flat $< > $@
 
@@ -334,7 +334,6 @@ pipeline/%/aggregated-stats.tsv: \
     pipeline/%/freebayes.tsv \
     pipeline/%/de-novo-ref-stats.tsv \
     pipeline/%/lt-X.tsv \
-    pipeline/%/barcode-clash.tsv \
     pipeline/%/barcode-filter.tsv \
     pipeline/%/input-refs.tsv
 	@echo "Aggregating everying together into $@"
@@ -350,9 +349,7 @@ pipeline/%/aggregated-stats.tsv: \
 	     then unsparsify --fill-with "NA" \
 	     then join -j Run,Plate,Well --ur -f $(word 5, $^) \
 	     then unsparsify --fill-with "NA" \
-	     then join -j Run,Plate,Well --ur -f $(word 6, $^) \
-	     then unsparsify --fill-with "NA" \
-	     then join -j Ref --ur -f $(word 7, $^) \
+	     then join -j Ref --ur -f $(word 6, $^) \
 	     then unsparsify --fill-with "NA" \
 	     then cut -x -f 1,2 \
 	     then put 'plate=splitnv($$Plate, "-"); well=splitnv($$Well, "-"); $$Plate_Well = plate[2]."_".well[1]' \
