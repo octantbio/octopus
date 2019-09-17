@@ -39,6 +39,13 @@ if __name__ == '__main__':
     else:
         print('NO INPUT REFERENCE!\nWill run through de novo assembly only.', file=sys.stdout)
 
+    # grab the SampleSheet
+    path_to_samplesheet = in_dir.joinpath('SampleSheet.csv').resolve()
+    if path_to_samplesheet.exists():
+        out_dir.joinpath('SampleSheet.csv').symlink_to(path_to_samplesheet)
+    else:
+        raise FileNotFoundError(f'{str(path_to_samplesheet)} does not exist!!')
+
     # grab the fastqs and drop them into out_dir/fastqs/*.fastq
     out_dir.joinpath('fastqs').mkdir(exist_ok=True)
     fastqs = in_dir.glob('Data/Intensities/BaseCalls/*.fastq*')

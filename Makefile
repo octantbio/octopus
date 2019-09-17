@@ -28,9 +28,22 @@ clean:
 # 0) Data Linking:
 # ---------------
 # link-data.py will traverse a standard illumina directory and clean read names
-pipeline/% pipeline/%/input.fasta: data/%
+# | specifies an order only prerequisite - make will only check existence
+pipeline/%/input.fasta pipeline/%/fastqs: | data/%
 	@echo "Cleaning up $<"
-	@python src/link-data.py $< --out-dir $(@D)
+	@python src/link-data.py $| --out-dir $(@D)
+
+# get list of plates to process
+# exclude plates that don't demultiplex
+# -print0 ensures nasty filenames are handled with grace
+# anything that parses plates.txt must handle null characters
+pipeline/%/plates.txt: pipeline/%/fastqs
+	@find -path "./$</*.fastq*" ! -regex '.*Undetermined.*' -print0 \
+	    | sed --null-data -e 's/_R.*//' \
+	    | sort --zero-terminated \
+	    | uniq --zero-terminated \
+	    | sed --null-data -e 's/.*\///'\
+	    > $@
 
 # ---------------
 # 1) Demultiplex:
@@ -38,8 +51,8 @@ pipeline/% pipeline/%/input.fasta: data/%
 # --xapply ensures {1} {2} are processed as we expect (i.e. not a permutation)
 # '{=1 ... }' enables you to run a perl expression on the first position var
 # s:.*/:: strips the paths (think s/.*//); s:_.*:: strips the underscores
-pipeline/%/demux: pipeline/%
-	@echo "Demultiplexing $(<D)"
+pipeline/%/demux: pipeline/%/fastqs
+	@echo "Demultiplexing $(@D)"
 	@parallel --xapply fgbio \
 	    --log-level=Error \
 	    DemuxFastqs \
@@ -50,7 +63,7 @@ pipeline/%/demux: pipeline/%
 	    --output=$(@D)/'{=1 s:.*/::;s:_.*:: =}' \
 	    --max-mismatches=2 \
 	    --metrics $(@D)/'{=1 s:.*/::;s:_.*:: =}'/igenomx_test_metrics.txt \
-	    ::: $(@D)/fastqs/*_R1*.gz ::: $(@D)/fastqs/*_R2*.gz \
+	    ::: $</*_R1.* ::: $</*_R2.* \
 	    && touch $@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,31 +86,34 @@ src/ecoli.fasta:
 
 # Preprocessing:
 # --------------
+# if you want a different genome, change out here
+# fgbio will demultiplex the wells into folder corresponding to whatever's in ./pipeline/fastqs
+# ensure everything ends in null character to handle filenames with nasty characters
+# xargs -I {} converts {} into substitution (much like parallel)
+# sed can change out delimiter s|foo|bar| == s/foo/bar/
 # -n2 puts two lines of the input at {}
-# ignore the unmatched wells
-# ensure that we've pulled the ecoli-genome (hard coded into jgi-preproc.sh)
-pipeline/%/preproc: pipeline/%/demux src/ecoli.fasta
+pipeline/%/preproc: pipeline/%/plates.txt pipeline/%/demux src/ecoli.fasta
 	@echo "Preprocessing plates in $(<D)"
-	@find -path "./$(<D)/Igenomx-*/*R*.fastq.gz" \
-	    | sort \
-	    | grep -v -F 'unmatched' \
-	    | parallel -n2 src/jgi-preproc.sh {} $(lastword $^) \
+	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.fastq*|' $< \
+	    | xargs --null -n1 -I {} find -path {} ! -regex '.*unmatched.*' -print0 \
+	    | sort --zero-terminated \
+	    | parallel --null -n2 src/jgi-preproc.sh {} $(lastword $^) \
 	    && touch $@
-
 
 # Contamination Stats:
 # --------------------
 # jgi's pipeline provides per-well contam stats
 # recall parallel requires escaping '
-pipeline/%/read-stats.tsv: pipeline/%/preproc
+pipeline/%/read-stats.tsv: pipeline/%/plates.txt pipeline/%/preproc
 	@echo "Calculating well statistics for $(<D)"
-	@parallel \
+	@sed --null-data -e 's|^|./$(<D)/|' $< \
+	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | parallel --null \
 	    grep -F -B4 \'Unique 31\' {}/*.pre-proc \
 	    \| sed -e \''/Total /d; /Input/d; /Unique/d; /--/d'\' \
 	    -e \''s/reads/\t/g; s/bases/\t/g; s/\.pre-proc-/\t/g'\' \
-	    -e \''s/pipeline\///g; s/[:()]//g'\' \
+	    -e \''s/\.\/pipeline\///g; s/[:()]//g'\' \
 	    -e \''s/\//\t/g; s/  \+//g'\' \
-	    ::: $(<D)/Igenomx-* \
 	| awk '{NF = NF -2; print}' OFS="\t" \
 	| mlr --tsvlite --implicit-csv-header label Run,Plate,Well,Metric,Reads,Percent \
 	> $@
@@ -111,10 +127,11 @@ pipeline/%/read-stats.tsv: pipeline/%/preproc
 # 1) merge reads
 # 2) use SPAdes to assemble
 
-pipeline/%/de-novo: pipeline/%/preproc
+pipeline/%/de-novo: pipeline/%/plates.txt pipeline/%/preproc
 	@echo "De novo assembling all plates in $(<D)"
-	@parallel src/jgi-denovo.sh {} \
-	    ::: $(<D)/Igenomx-*/*.ecc.fq.gz \
+	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.ecc.fq.gz|' $< \
+	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | parallel --null src/jgi-denovo.sh {} \
 	    && touch $@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -141,15 +158,16 @@ pipeline/%/input-flatten.fasta: pipeline/%/input.fasta
 # only take the first contig
 # 1) dump all fastas into spades-contigs/Plate_Well.spades-contigs.fasta
 # 2) take only the first record
-pipeline/%/spades-contigs.fasta: pipeline/%/de-novo
+pipeline/%/spades-contigs.fasta: pipeline/%/plates.txt pipeline/%/de-novo
 	@echo "Aggregating all contigs in $(<D)"
-	@mkdir -p $(@:.fasta=)
-	@parallel \
+	@mkdir -p $(@:.fasta=) \
+	    && sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.spades-contig.fasta|' $< \
+	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | parallel --null \
 	    'well="$$(basename -s .spades-contig.fasta {/})"; \
 	    plate="$$(basename {//})"; \
 	    cp {} $(@:.fasta=)/"$$plate"_"$$well".fasta' \
-	    ::: $(<D)/Igenomx-*/*spades-contig.fasta
-	@python src/flatten-fasta.py --no-flat --records 1 $(@:.fasta=)/*.fasta \
+	    && python src/flatten-fasta.py --no-flat --records 1 $(@:.fasta=)/*.fasta \
 	    > $@
 
 # Align Contigs:
@@ -218,6 +236,7 @@ pipeline/%/input-refs.tsv: pipeline/%/input-refs.fasta
 # 1) get well identity
 # 2) Re-map preprocessed reads to that specific reference
 # 3) Call variants with Q>20, and >=1 read that makes up 50% of reads at that position
+
 pipeline/%/guided: pipeline/%/de-novo-ref-stats.tsv pipeline/%/preproc pipeline/%/lib/split
 	@echo "Calling variants for all plates in $(<D)"
 	@awk 'NR > 1{print "pipeline",$$1,"lib",$$4".fasta pipeline",$$1,$$2,$$3".ecc.fq.gz"}' \
@@ -237,14 +256,15 @@ pipeline/%/guided: pipeline/%/de-novo-ref-stats.tsv pipeline/%/preproc pipeline/
 # 3) un-tidy for nice excel output
 
 # parallel requires escaping |
-pipeline/%/freebayes-tidy.tsv: pipeline/%/input-refs.fasta pipeline/%/guided
+pipeline/%/freebayes-tidy.tsv: pipeline/%/plates.txt pipeline/%/input-refs.fasta pipeline/%/guided
 	@echo "Parsing variants from FreeBayes for $(<D)"
-	@parallel \
+	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.freebayes.bcf|' $< \
+	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | parallel --null \
 	    bcftools view {} \
-	    \| python src/vcf-parse.py $< - \
+	    \| python src/vcf-parse.py $(word 2, $^) - \
 	    \| awk -v wells='{= s:\.freebayes\.bcf:: =}' \
 	    \''{len=split(wells,a,"/"); print a[len-2],a[len-1],a[len],$$0}'\' OFS=\'\\t\' \
-	    ::: $(<D)/Igenomx-*/*.freebayes.bcf \
 	    > $@
 
 pipeline/%/freebayes.tsv: pipeline/%/freebayes-tidy.tsv
@@ -273,14 +293,15 @@ pipeline/%/freebayes.tsv: pipeline/%/freebayes-tidy.tsv
 # 2) Report percentages of bases with <10x, <3x coverage
 
 # -aa -> absolutely all positions; -d0 no max depth
-pipeline/%/lt-X.tsv: pipeline/%/guided
+pipeline/%/lt-X.tsv: pipeline/%/plates.txt pipeline/%/guided
 	@echo "Calculating percent bases <10x and <3x coverage for $(@D)"
-	@parallel \
+	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.map.bam|' $< \
+	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | parallel --null \
 	    samtools depth -aa -d0 {} \
 	    \| awk -v path='{= s:\.map\.bam:: =}' \
 	    \''{if($$3 < 3) lt3 += 1; else if($$3 < 10) lt10 += 1} END {len=split(path,a,"/"); print a[len-2],a[len-1],a[len],lt10/NR,lt3/NR}'\' \
 	    OFS=\"\\t\" \
-	    ::: $(<D)/Igenomx-*/*.map.bam \
 	| mlr --tsvlite --implicit-csv-header label Run,Plate,Well,LT_10,LT_3 \
 	> $@
 
