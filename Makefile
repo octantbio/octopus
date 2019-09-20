@@ -79,7 +79,7 @@ pipeline/%/demux: pipeline/%/fastqs
 
 # Grab DH5a Genome:
 # -----------------
-src/ecoli.fasta:
+src/background.fasta:
 	@echo "Grabbing e. coli genome"
 	@curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&amp;id=CP017100&amp;rettype=fasta&amp;retmode=text" > $@
 
@@ -92,7 +92,7 @@ src/ecoli.fasta:
 # xargs -I {} converts {} into substitution (much like parallel)
 # sed can change out delimiter s|foo|bar| == s/foo/bar/
 # -n2 puts two lines of the input at {}
-pipeline/%/preproc: pipeline/%/plates.txt pipeline/%/demux src/ecoli.fasta
+pipeline/%/preproc: pipeline/%/plates.txt pipeline/%/demux src/background.fasta
 	@echo "Preprocessing plates in $(<D)"
 	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.fastq*|' $< \
 	    | xargs --null -n1 -I {} find -path {} ! -regex '.*unmatched.*' -print0 \
@@ -178,7 +178,7 @@ pipeline/%/spades-contigs.fasta: pipeline/%/plates.txt pipeline/%/de-novo
 # take only good alignments (0 for forward, 16 for rev-comp)
 pipeline/%/spades-contigs.sam: pipeline/%/input-flatten.fasta pipeline/%/spades-contigs.fasta
 	@echo "Mapping contigs from $(<D)"
-	@minimap2 --eqx --secondary=no -x asm20 -a $^ \
+	@minimap2 --eqx --secondary=no -x asm20 -a  -t $$(nproc --all) $^ \
 	    2> $(@:.sam=.map.err) \
 	    | awk '$$2 == 0 || $$2 == 16' \
 	    > $@

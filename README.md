@@ -36,7 +36,17 @@ It is possible to run OCTOPUS without `docker`, but not recommended. If you insi
 
 ### Hardware
 
-For optimal performance, we recommend deploying on a machine with at least 64 GB of RAM and 16 cores. We use [GNU Parallel](https://www.gnu.org/software/parallel/) to distribute tasks where possible. If you run out of RAM, you can tune the number of jobs by setting the `--jobs` flag (e.g. 75% of cores `--jobs 75%` or 4 simultaneous jobs `--jobs 4`)
+For optimal performance, we recommend deploying on a machine with at least 32 GB of RAM and 16 cores. We use [GNU Parallel](https://www.gnu.org/software/parallel/) to distribute tasks where possible, and empirically, the RAM requirements seems to scale with the number of cores (e.g. 64 GB of RAM for 64 cores). The compute times (for 384 wells) scale asymptotically, suggesting a potential disk bottleneck.
+
+```
+64 cores -> 64 GB RAM -> 13 Mins
+32 cores -> 32 GB RAM -> 15 Mins
+24 cores -> 24 GB RAM -> 20 Mins
+16 cores -> 16 GB RAM -> 25 Mins
+8  cores ->  8 GB RAM -> 45 Mins
+```
+
+We performed all trials on two Intel(R) Xeon(R) Gold 6130 CPUs @ 2.10GHz, limiting the cores through the docker `--cpuset-cpus=N` flag, and estimated peak RAM usage with `/bin/free`.
 
 # Running OCTOPUS
 
@@ -52,7 +62,7 @@ or unzip the [latest release](https://github.com/octantbio/octopus/releases) tar
 
 ## Linking Data
 
-As OCTOPUS uses `make` to orchestrate everything, there are some conventions your data must adhere to. First, deposit the output folder from your sequencing run in the [data](data) directory
+As OCTOPUS uses `make` to orchestrate everything, there are some conventions your data must adhere to. First, deposit the output folder from your sequencing run in the `data` directory
 
 ```
 cp -r /path/to/run-id /path/to/octopus/data
@@ -60,11 +70,17 @@ cp -r /path/to/run-id /path/to/octopus/data
 
 under a unique folder. We typically use the default folder name produced by the sequencer as an identifier. Second, many steps in the OCTOPUS pipeline will process the file name of the fastq's. To avoid issues, make sure all unique information is contained before the first underscore in your SampleSheet (most Illumina sequencers will automatically convert any \_'s in the `Sample_Name` column of the SampleSheet to -'s anyways). Importantly, the pipeline will trim out anything between the first underscore and the read specifier (e.g. `my-reads_foo_bar_baz_R1.fastq.gz -> my-reads_R1.fastq.gz`) to ensure everything behaves properly.
 
-Alternatively, you can manually add fastq's to the [pipeline](pipeline) folder provided they are in their own folder and are not symlinks to outside of the `octopus` folder (if you are following our docker instructions).
+Alternatively, you can manually add fastq's under `./octopus/pipeline/*run-id*/fastqs` provided they are not symlinks to outside of the `octopus` folder (if you are following our docker instructions).
 
 ### Reference Library
 
-If you know the sequences of you plasmids _a priori_ you should include them as `./octopus/data/run-id/input.fasta`. The OCTOPUS pipeline will also automatically parse any barcodes in the form of N's for downstream analyses. If you do not know your input, run `make de-novo` instead to take the pipeline through the _de novo_ assembly step. If you forget, and run `make all` the pipeline will refuse to run.
+Next, place a fasta file containing the sequences of the plasmids you are trying to sequence under `./octopus/data/*run-id*/input.fasta`. The OCTOPUS pipeline will also automatically parse any barcodes in the form of N's for downstream analyses.
+
+Similar to the fastq's, you can manually place `input.fasta` at `./octopus/pipeline/*run-id*/input.fasta`.
+
+#### De Novo Assembly
+
+If you do not know your input, run `make de-novo` instead to take the pipeline through the _de novo_ assembly step. If you forget, and run `make all` the pipeline will throw an error.
 
 ## The Pipeline
 
@@ -81,7 +97,7 @@ cd octopus
 make all
 ```
 
-to run the pipeline on every sequencing run in the `./data` directory and produce `octopus/pipeline/run-id/aggregated-stats.tsv`. You will get an error if you did not place the `input.fasta` file under `data/run-id/input.fasta`. If you don't have one try `make denovo`.
+to run the pipeline on every sequencing run in the `./data` directory and produce `octopus/pipeline/*run-id*/aggregated-stats.tsv`. You will get an error if you did not place the `input.fasta` file under `data/*run-id*/input.fasta`. If you don't have one try `make denovo`.
 
 ### aggregated-stats.tsv
 
@@ -119,10 +135,14 @@ Due to the nature of the iGenomX protocol, there are effectively two demultiplex
 
 ## 2. Read Pre-processing
 
-To ensure a high quality _de novo_ assembly, we perform a number of processing steps. This protocol is adopted from one included with the Joint Genome Institute's [BBTools](https://jgi.doe.gov/data-and-tools/bbtools/), and is handled by [jgi-preproc.sh](src/jgi-preproc.sh). Broadly, it removes optical duplicates, trims Illumina adapters, filters contaminants, and error-corrects the remaining reads. For this application, we filter out PhiX, a list of known sequencing artifacts (included with BBTools), and the NEB 5a genome. Users with other applications can filter out a different set of contaminants (in the form of a fasta file) by modifying the `Makefile` as follows
+To ensure a high quality _de novo_ assembly, we perform a number of processing steps. This protocol is adopted from one included with the Joint Genome Institute's [BBTools](https://jgi.doe.gov/data-and-tools/bbtools/), and is handled by [jgi-preproc.sh](src/jgi-preproc.sh). Broadly, it removes optical duplicates, trims Illumina adapters, filters contaminants, and error-corrects the remaining reads. For this application, we filter out PhiX, a list of known sequencing artifacts (included with BBTools), and the NEB 5a genome.
+
+### Alternative Contaminants
+
+Users with other applications can filter out a different set of contaminants (in the form of a fasta file) by replacing `src/background.fasta` with their own `src/background.fasta`. Alternatively you can modify the `Makefile` as follows:
 
 ```
-old: pipeline/%/preproc: pipeline/%/demux src/ecoli.fasta
+old: pipeline/%/preproc: pipeline/%/demux src/background.fasta
 new: pipeline/%/preproc: pipeline/%/demux path/to/your/fasta
 ```
 
@@ -227,6 +247,14 @@ Please feel free to open an issue or pull request.
 
 This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details. Additional licensing information:
 
-- [BBTools](docker/bbtools-license)
-- [mlr](docker/mlr-license)
-- [starcode](docker/starcode-license)
+- [BBTools](docker/bbtools-license) - custom
+- [mlr](docker/mlr-license) - custom
+- [starcode](docker/starcode-license) - GPL-3.0
+- [SPAdes](docker/spades-license) - GPL-2.0
+- [fgbio](https://github.com/fulcrumgenomics/fgbio/blob/master/LICENSE) - MIT
+- [minimap2](https://github.com/lh3/minimap2/blob/master/LICENSE.txt) - MIT
+- [samtools](https://github.com/samtools/samtools/blob/develop/LICENSE) - MIT
+- [bcftools](https://github.com/samtools/bcftools/blob/develop/LICENSE) - MIT
+- [htslib](https://github.com/samtools/htslib/blob/develop/LICENSE) - MIT
+- [freebayes](https://github.com/ekg/freebayes/blob/master/LICENSE) - MIT
+
