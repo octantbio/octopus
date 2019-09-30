@@ -115,9 +115,9 @@ As the name suggests, results pertinent to an OCTOPUS run are aggregated into a 
 - `n_vars`: number of variants detected by FreeBayes (note barcodes count as variants)
 - `n_barcodes`: number of barcodes detected
 - `expected_bcs`: expected number of barcodes based on the reference (in a perfect plasmid `n_vars = n_barcodes = expected_bcs`)
-- `bc_1`: sequence of barcode 1 pulled from the variant caller (may be reverse compliment)
+- `bc_1`: sequence of barcode 1 pulled from the variant caller (may be reverse complement)
 - `pos_1`: position of barcode 1 in _de novo_ assembly
-- `bc_N`: sequence of barcode N pulled from the variant caller (may be reverse compliment; NA if missing)
+- `bc_N`: sequence of barcode N pulled from the variant caller (may be reverse complement; NA if missing)
 - `pos_N`: position of barcode N in _de novo_ assembly (NA if missing)
 - `Contaminants`: number of reads from "contaminants" ([more details](#percent-contaminants))
 - `Leftover`: number of reads in well leftover after filtering out "contaminants"
