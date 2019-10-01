@@ -224,7 +224,7 @@ pipeline/%/input-refs.tsv: pipeline/%/input-refs.fasta
 	@echo "Splitting input library into tsv"
 	@sed 's/>//g' $< \
 	    | paste - - \
-	    | mlr --tsvlite label Ref,Ref_Seq \
+	    | mlr --tsvlite --implicit-csv-header label Ref,Ref_Seq \
 	    > $@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
