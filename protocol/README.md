@@ -31,18 +31,18 @@
 
 # Table of Contents
 
-- [Day 1 - Picking colonies](#day-1---picking-colonies-10-15min-per-96-colonies)
+- [Day 1 - Picking colonies](#day-1---picking-colonies-10-15-mins-per-96-colonies)
 - [Day 2 - Lysate and glycerol stock generation](#day-2---lysate-and-glycerol-stock-generation-1-2-hours)
 - [Day 2 - "Miniaturized" Riptide protocol](#day-2---miniaturized-riptide-protocol-4-6-hours)
-    - Random primer extension and biotinylated termination
-    - DNA capture and library conversion
-    - Library Amplification
-    - Size Selection
-- [Day 2 - Library quantification and sequencing](#day-2---library-quantification-and-sequencing-setup-45-minutes)
+    - [Random primer extension and biotinylated termination](#a-reaction-random-primer-extension-and-biotinylated-termination-1-hour)
+    - [DNA capture and library conversion](#b-reaction-dna-capture-and-library-conversion-1-2-hours)
+    - [Library Amplification](#pcr-amplification-45-mins)
+    - [Size Selection](#spri-bead-cleanup-and-gel-isolation-1-hour)
+- [Day 2 - Library quantification and sequencing](#day-2---library-quantification-and-sequencing-setup-45-mins)
 - [Day 3 - Running the computational pipeline](#day-3---running-the-computational-pipeline-1-hour)
 - [Day 3 - Picking perfects](#picking-perfects)
 
-# Day 1 - Picking colonies (~10-15min per 96 colonies)
+# Day 1 - Picking colonies (~10-15 min per 96 colonies)
 
 1. Pick single colonies into 150 µl of 2xYT with appropriate antibiotic in a flat-bottom 96-well plate
     - Different antibiotics have different plasmid yield in the lysate
@@ -168,13 +168,14 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 9. Run sample(s) on a 1.0% agarose gel and gel extract. It should come out as a visible smear, isolate the 400-1200bp region, taking care to avoid the potential primer dimer band.
 10. **At this point the protocol can be paused by putting the tube(s) at -20˚C**
 
-# Day 2 - Library Quantification and sequencing setup (45 minutes)
+# Day 2 - Library Quantification and sequencing setup (45 mins)
 
 - Every quantification method is slightly different and each comes with its own pros and cons. These issues are exacerbated by the Riptide library product which is a heterogenous mixture of DNA fragment sizes (*see above*).
 - The way we reduce variability in quantification is to quantify a previously run OCTOPUS library and use that as a baseline to estimate the concentration of the current libraries. In our hands, a fluorescence based assay gives sufficiently accurate quantification alongside a previously run library. If no previously run libraries are available, quantification by qPCR has been the most accurate method.
 - Select the appropriate sequencing kit: as a rule of thumb, 10,000 paired-end 150 reads/well, or 1,000,000 reads per 96-well plate (nano-kit V2 for one 96-well plate, micro-kit V2 for a 384-well plate, and a standard V2 kit for anything more than 384-well, the most we do is 3 x 384-wells due to the limited number of index primers in the riptide kit)
 - The only information necessary to generate the sample sheet is to provide the plate index sequences
-- ***Example sample-sheet.csv:***
+
+**Example sample-sheet.csv:**
 
 ```
 [Header],,,,,,
