@@ -1,21 +1,24 @@
 # Reagents:
 
-- [Riptide Kit](https://igenomx.com/product/riptide/) from iGenomX
 - ddH2O
 - 30% [Glycerol](https://www.fishersci.com/shop/products/glycerol-molecular-biology-fisher-bioreagents-2/BP2291)
 - 0.1 M [Sodium Hydroxide](https://www.fishersci.com/shop/products/sodium-hydroxide-pellets-certified-acs-fisher-chemical-7/S318100)
 - [2xYT](https://us.vwr.com/store/product/7437420/vwr-life-science-2xyt-medium-broth)
 - [Miseq sequencing kits](https://www.illumina.com/products/by-type/sequencing-kits/cluster-gen-sequencing-reagents/miseq-reagent-kit-v2.html)
 
-# Equipment:
+# Consumables:
 
+- [Riptide Kit](https://igenomx.com/product/riptide/) from iGenomX
 - [Flat Bottom 96-well plates](https://www.sigmaaldrich.com/catalog/product/aldrich/br781602?lang=en&region=US)
 - [96-well PCR plates](https://www.thermofisher.com/order/catalog/product/AB0600)
-- [96-well thermal cycler](https://www.bio-rad.com/en-us/product/c1000-touch-thermal-cycler?ID=LGTW9415)
-- 384-well PCR plates (optional)
-- [384-well thermal cycler](https://www.thermofisher.com/order/catalog/product/4388444) (optional)
+- [384-well PCR plates](https://www.thermofisher.com/order/catalog/product/4483317?SID=srch-hj-4483317) (optional)
 - Foil Plate seal (Axygen PCR-AS-200)
 - Plastic Plate seal (Axygen PCR-SP)
+
+# Equipment:
+
+- [96-well thermal cycler](https://www.bio-rad.com/en-us/product/c1000-touch-thermal-cycler?ID=LGTW9415)
+- [384-well thermal cycler](https://www.thermofisher.com/order/catalog/product/4388444) (optional)
 - Multichannel 10
 - Multichannel 200
 - [Liquidator 20](https://www.shoprainin.com/Products/Pipettes-and-Tips/Pipettes/High-throughput-Pipetting/Liquidator%E2%84%A2-96/Liquidator-96-2-20-%C2%B5L-LIQ-96-20/p/17014207) (optional)
@@ -28,26 +31,25 @@
 
 # Table of Contents
 
-- [Picking colonies](#picking-colonies) (1hr) (o/n growth)
-- [Lysate and glycerol stock generation](#lysate-and-glcerol) (1hr)
-- [Miniaturized Riptide](#"minaturized") (4-6hrs total)
-  - Random primer extension and biotinylated termination: “A” reaction (1-2hrs)
-  - DNA capture and library conversion: “B” reaction (1-2hrs)
-  - Library Amplification (1-2hrs)
-  - Size Selection (1hr)
-- Library quantification and sequencing (1hr) (16-28hr sequencing)
-- Running the computational pipeline (1-2hrs see github for processor times)
-
-Interpreting the data and picking perfects
+- [Day 1 - Picking colonies](#day-1---picking-colonies-10-15min-per-96-colonies)
+- [Day 2 - Lysate and glycerol stock generation](#day-2---lysate-and-glycerol-stock-generation-1-2-hours)
+- [Day 2 - "Miniaturized" Riptide protocol](#day-2---miniaturized-riptide-protocol-4-6-hours)
+    - Random primer extension and biotinylated termination
+    - DNA capture and library conversion
+    - Library Amplification
+    - Size Selection
+- [Day 2 - Library quantification and sequencing](#day-2---library-quantification-and-sequencing-setup-45-minutes)
+- [Day 3 - Running the computational pipeline](#day-3---running-the-computational-pipeline-1-hour)
+- [Day 3 - Picking perfects](#picking-perfects)
 
 # Day 1 - Picking colonies (~10-15min per 96 colonies)
 
 1. Pick single colonies into 150 µl of 2xYT with appropriate antibiotic in a flat-bottom 96-well plate
-  - Different antibiotics have different plasmid yield in the lysate
-  - When cloning in a pooled library format, we usually pick a minimum of 4 colonies per desired clone.
-  - *Tip: We pick colonies using 200 µL pipette tips, put them back into the box, and then use a multichannel pipette to inoculate the 2xYT plate. This saves a lot of time and should allow you to pick a 96-well plate in about ~10 minutes with some practice (potential upgrade is a colony picker - we have yet to identify a cost effective and robust model)*
+    - Different antibiotics have different plasmid yield in the lysate
+    - When cloning in a pooled library format, we usually pick a minimum of 4 colonies per desired clone.
+    - *Tip: We pick colonies using 200 µL pipette tips, put them back into the box, and then use a multichannel pipette to inoculate the 2xYT plate. This saves a lot of time and should allow you to pick a 96-well plate in about ~10 minutes with some practice (potential upgrade is a colony picker - we have yet to identify a cost effective and robust model)*
 2. Tape the lid tightly to the plate to reduce evaporation and grow overnight at 37˚C in a shaking incubator
-  - a 96-well plate specific incubator with a short throw and high rpm is great, but we just use a normal incubator/shaker meant for flasks at 250 rpm
+    - a 96-well plate specific incubator with a short throw and high rpm is great, but we just use a normal incubator/shaker meant for flasks at 250 rpm
 
 # Day 2 - Lysate and glycerol stock generation (~1-2 hours)
 
@@ -56,7 +58,7 @@ Interpreting the data and picking perfects
 3. Store the remaining 100 µL as glycerol stock by adding 100 µL of 30% glycerol to the plates, shake in incubator for 15 min, foil seal, and store in -80˚C freezer.
 4. Flick and blot the media from the pelleted bacteria (media in this step will inhibit proper lysis)
 5. Add 40 µL of MillQ water to each pellet, plastic seal, and resuspend pellet by pipetting or with a multi-tube vortexer
-  - *tip: pulse by going from medium to max speed, then leave at near max speed for 5-10 secs*
+    - *tip: pulse by going from medium to max speed, then leave at near max speed for 5-10 secs*
 6. Lyse cells in 96-well thermocycler by heating at 95˚C for 3 min and then cooling to 4˚C
 7. Clarify lysate by spinning at 4000+ rcf for 10 min at RT
 8. Remove the top 20 µLof clarified lysate and store in a separate 96 or 384-well plate
@@ -69,36 +71,36 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 ## A Reaction: Random primer extension and biotinylated termination (~1 hour)
 
 1. For each 96-well plate, prepare 200 µL of Reaction A master-mix by mixing
-  - 100 µL DNTP Mix 1
-  - 50 µL 10X Enzyme 1 Buffer
-  - 50 µL Enzyme 1
+    - 100 µL DNTP Mix 1
+    - 50 µL 10X Enzyme 1 Buffer
+    - 50 µL Enzyme 1
 2. Fill a 96-well plate with 2 µL each of the master-mix using a multichannel or liquidator
-  - Consider 384-well plates if working with 4 96-well plates
+    - Consider 384-well plates if working with 4 96-well plates
 3. Pipette into each well 1 µL of Primer A, using liquidator or multichannel
-  - Make sure to properly mix primer A plate if thawing
+    - Make sure to properly mix primer A plate if thawing
 4. Pipette into each well 2 µL of clarified lysate using liquidator or multichannel
-  - Make sure to properly mix lysate if thawing
-  - If sequencing mini-preps, use 2 µL of 5 ng/µL per well
+    - Make sure to properly mix lysate if thawing
+    - If sequencing mini-preps, use 2 µL of 5 ng/µL per well
 5. Seal the plate with foil and run the following protocol on a thermocycler
-  - 92˚C for 3 min
-  - 16˚C for 5 min
-  - Slow ramp (0.1˚C/sec to 68˚C)
-  - 68˚C for 15 min
-  - Hold at 4˚C
+    - 92˚C for 3 min
+    - 16˚C for 5 min
+    - Slow ramp (0.1˚C/sec to 68˚C)
+    - 68˚C for 15 min
+    - Hold at 4˚C
 6. **At this point the protocol can be paused by freezing the plate(s) at -20˚C**
 7. Warm the SPRI Beads I to RT.
 8. Stop the reaction with EDTA and pool the contents of each 96-well plate
-  - Option A:
-  1. Use a liquidator to add 1 µL of 75 mM EDTA to each well
-  2. Use those same tips to aspirate and dispense the contents of each 96-well plate onto a clean liquidator tip-box lid and pool everything by tapping the lid at an angle. Make sure all drops are collected.
-  3. Dispense pooled liquid into a low-retention Eppendorf tube (should recover around 400-500 µL of sample).
-  - Option B:
-  1. Pool samples into a PCR strip tube already containing EDTA, using a multichannel
+    - Option A:
+    1. Use a liquidator to add 1 µL of 75 mM EDTA to each well
+    2. Use those same tips to aspirate and dispense the contents of each 96-well plate onto a clean liquidator tip-box lid and pool everything by tapping the lid at an angle. Make sure all drops are collected.
+    3. Dispense pooled liquid into a low-retention Eppendorf tube (should recover around 400-500 µL of sample).
+    - Option B:
+    1. Pool samples into a PCR strip tube already containing EDTA, using a multichannel
 9. Ensure each 96-well plate has it’s own pooled tube
 10. Add 1.8 volumes of thoroughly-mixed room temperature **SPRI Beads I** to each pooled tube (use a 1 mL pipette to measure the volume). Mix by pipetting, incubate 10 min at room temperature.
 11. Place tube(s) on dynamag, allow the solution to clear (2-5 min), and discard supernatant.
 12. Keeping tube(s) on the dynamag, add 1300 µL of freshly prepared 80% ethanol to each tube, wait 30 secs, then aspirate ethanol.
-    - Repeat this step, and ensure that all ethanol is removed.
+      - Repeat this step, and ensure that all ethanol is removed.
 13. Open the caps and allow the beads to air dry on the dynamag for 10 min, don’t overdry.
 14. Add 50 µL of RT 10 mM Tris-HCl pH 8 to the beads
 15. Remove tube(s) from dynamag, and resuspend the beads until homogenous. Incubate at RT for 10 min to elute.
@@ -109,22 +111,22 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 
 1. Heat-denature the elution at 95˚C for 3 min and hold at 4˚C in a thermocycler
 2. While it’s heating, prep the Capture Beads
-  1. Warm the Capture Beads and HS-Buffer to RT, resuspend thoroughly, and transfer 20 µL of slurry for each sample into a new PCR tube.
-  2. Dynamag the capture beads and discard the supernatant.
-  3. Remove tubes from dynamag and add 100 µL of HS-Buffer
-  4. Dynamag and remove the wash.
-  5. Resuspend the beads in 20 µL of HS-Buffer.
+    1. Warm the Capture Beads and HS-Buffer to RT, resuspend thoroughly, and transfer 20 µL of slurry for each sample into a new PCR tube.
+    2. Dynamag the capture beads and discard the supernatant.
+    3. Remove tubes from dynamag and add 100 µL of HS-Buffer
+    4. Dynamag and remove the wash.
+    5. Resuspend the beads in 20 µL of HS-Buffer.
 3. Add all 50 µL of the heat-denatured elution to the washed Capture Beads, mix, and incubate at RT for 10 min.
 4. Pipette mix beads again and incubate at RT for 10 min.
 5. Dynamag the beads and discard the supernatant.
 6. Resuspend beads with 50 µL of 0.1M NaOH, incubate 4 min at RT, dynamag and remove supernatant
 7. Wash the beads 3 times (resuspend beads in 100 µL of RT Bead Wash Buffer, dynamag, remove supernatant). Make sure to remove any remaining liquid after final wash.
 8. Prepare a mastermix for “Reaction B”: for every tube of beads, mix together on ice
-  - 4 µLof 5x Enzyme II Buffer
-  - 1.5 µL DNTP mix II
-  - 2 µL Primer B
-  - 12 µL Nuclease-Free Water
-  - 0.5 µL Enzyme II
+    - 4 µLof 5x Enzyme II Buffer
+    - 1.5 µL DNTP mix II
+    - 2 µL Primer B
+    - 12 µL Nuclease-Free Water
+    - 0.5 µL Enzyme II
 9. Quickly add 19.5 µL of “Reaction B” mastermix to each tube (try not to let mastermix sit around at RT)
 10. Incubate the tubes in a thermocycler for 20 min at 24˚C and hold at 4˚C for at least 3 min
 11. Pipette mix the beads, dynamag and discard supernatant
@@ -133,10 +135,10 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 ## PCR Amplification (45 mins)
 
 1. Resuspend the beads in 21 µL of nuclease free water, then setup the PCR reaction by adding:
-  - 2 µL Universal PCR primer
-  - 2 µL Index PCR primer (1-12) (choose one barcoded primer per pool)
-  - 25 µL 2X PCR Amplification Mix
-  - 50 µL total
+    - 2 µL Universal PCR primer
+    - 2 µL Index PCR primer (1-12) (choose one barcoded primer per pool)
+    - 25 µL 2X PCR Amplification Mix
+    - 50 µL total
 2. Input the following program into a thermocycler
 
 ```
@@ -158,7 +160,7 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 2. During this incubation, pour a 1.0% agarose gel with Sybr-Safe for gel-extraction
 3. Dynamag the beads for at least 2 min, and discard supernatant.
 4. Add 200 µL of 80% ethanol to each tube(s), wait 30 sec, then remove and discard the ethanol
-   - it is unnecessary to remove from magnet for the ethanol wash
+     - it is unnecessary to remove from magnet for the ethanol wash
 5. Repeat with another 200 µL of 80% ethanol, carefully remove all ethanol from tube without disturbing beads.
 6. Open cap and allow to air dry for 10 min on dynamag (careful not to overdry).
 7. Add 25 µL of RT 10 mM Tris-HCl (pH8) to beads. Remove from dynamag and fully resuspend the beads.
@@ -227,8 +229,7 @@ ATACTCTCGTAGTTAACATCTAGCCCGGCCCTATCAGTACAGCAGTGCCTTGAATGACATACTCATCATTAAATTTTCTC
 
 After preparing the directory, start a docker image in the `octopus` folder and type `make all` in the command prompt to run the pipeline. This will take 1-2 hours depending on your computational resources. If you have multiple sequencing runs, `make` will run the pipeline on them sequentially. Users without an `input.fasta` must type `make denovo` to run the pipeline through the *de novo* assembly step.
 
-
-# Interpreting the output
+## Interpreting the output
 
 The computational pipeline will automatically generate a new folder with the name of the run-file in the /pipeline/ folder. This folder will contain the results of the analysis and outputs a ‘aggregated-stats.tsv’ file that contains contains the following columns:
 
@@ -263,9 +264,9 @@ We analyze our data by pasting the aggregated-stats.tsv into a spreadsheet.
 3. Filter out any non expected variants. The pipeline will automatically detect any strings of N’s in the input.fasta of the `DeNovo_ref` and identify those as an `expected bcs`. The number of expected barcodes in the aligning sequence will be listed in `expected_bcs`. Assuming that the expected BC(s) was detected, perfect sequences will have the same value in `n_vars` as `expected_bcs` and `n_barcodes`.
 4. You are now ready to select wells to prep. The `plate_well` column will identify which plates/wells from the glycerol plate will correspond to the desired sequences. If possible, select wells with the best coverage as represented by a larger `Leftover` value and with `LT_10` of 0 and `LT_3` of 0. `LT_10` is less critical but `LT_3` should never be larger than 0 (for a 10kb plasmid an `LT_3` of 0.001 means that 10 bp of the plasmid did not have a coverage of at least three).
 5. If there happens to be a clone that does not have sufficient coverage but is absolutely required, use the pileup from `samtools` to manually inspect aligned reads to the `DeNovo_ref` if the missing coverage is in a critical part of the plasmid.
-  - In a new terminal, `cd` into your octopus directory
-  - Open up a new docker instance - `docker run --rm -it -v "$(pwd)":/root/octopus octant/octopus /bin/bash`
-  - Navigate into the folder that contains the analyzed data from that run - `cd octopus/pipeline/your_run_id`
-  - Index the well of interest - `samtools index your_plate/your_well.map.bam`
-  - View the pileup - `samtools tview your_plate/your_well.map.bam lib/your_ref.fasta`
-     - Note `your_ref` can be determined by `samtools view your_plate/your_well.map.bam | head` and looking for the reference field
+    - In a new terminal, `cd` into your octopus directory
+    - Open up a new docker instance - `docker run --rm -it -v "$(pwd)":/root/octopus octant/octopus /bin/bash`
+    - Navigate into the folder that contains the analyzed data from that run - `cd octopus/pipeline/your_run_id`
+    - Index the well of interest - `samtools index your_plate/your_well.map.bam`
+    - View the pileup - `samtools tview your_plate/your_well.map.bam lib/your_ref.fasta`
+    - Note `your_ref` can be determined by `samtools view your_plate/your_well.map.bam | head` and looking for the reference field
