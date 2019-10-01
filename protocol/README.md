@@ -4,9 +4,10 @@
 - 30% [Glycerol](https://www.fishersci.com/shop/products/glycerol-molecular-biology-fisher-bioreagents-2/BP2291)
 - 0.1 M [Sodium Hydroxide](https://www.fishersci.com/shop/products/sodium-hydroxide-pellets-certified-acs-fisher-chemical-7/S318100)
 - [2xYT](https://us.vwr.com/store/product/7437420/vwr-life-science-2xyt-medium-broth)
-- [Miseq sequencing kits](https://www.illumina.com/products/by-type/sequencing-kits/cluster-gen-sequencing-reagents/miseq-reagent-kit-v2.html)
 - 75 mM EDTA
-- EtOH
+- Ethanol
+- Agarose
+- TAE
 
 # Consumables:
 
@@ -16,6 +17,8 @@
 - [384-well PCR plates](https://www.thermofisher.com/order/catalog/product/4483317?SID=srch-hj-4483317) (optional)
 - Foil Plate seal (Axygen PCR-AS-200)
 - Plastic Plate seal (Axygen PCR-SP)
+- [Gel Extraction Kit](https://www.zymoresearch.com/collections/zymoclean-gel-dna-recovery-kits/products/zymoclean-gel-dna-recovery-kit)
+- [MiSeq sequencing kits](https://www.illumina.com/products/by-type/sequencing-kits/cluster-gen-sequencing-reagents/miseq-reagent-kit-v2.html)
 
 # Equipment:
 
@@ -66,26 +69,29 @@
 8. Remove the top 20 µLof clarified lysate and store in a separate 96 or 384-well plate
 9. *At this point the protocol can be paused by freezing the lysate at -80˚C*
 
-# Day 2 - “Miniaturized” Riptide protocol (~4-6 hours)
+# Day 2 - "Miniaturized" Riptide protocol (~4-6 hours)
 
 This protocol is adapted from the iGenomX Riptide library prep protocol [here](https://igenomx.com/resources/)
 
 ## A Reaction: Random primer extension and biotinylated termination (~1 hour)
 
 Consumables needed for "A Reaction":
-- dNTP Mix 1
-- 10X Enzyme 1 Buffer
-- Primer A
-- Enzyme 1
-- SPRI Beads 1
-- 75 mM EDTA
-- 80% EtOH (freshly prepared)
-- 10 mM Tris-HCl pH 8
+
+```
+dNTP Mix 1
+10X Enzyme 1 Buffer
+Primer A
+Enzyme 1
+SPRI Beads 1
+75 mM EDTA
+80% ethanol (freshly prepared)
+10 mM Tris-HCl pH 8
+```
 
 1. For each 96-well plate, prepare 200 µL of Reaction A master-mix by mixing
     - 100 µL **dNTP Mix 1**
     - 50 µL **10X Enzyme 1 Buffer**
-    - 50 µL *Enzyme 1*
+    - 50 µL **Enzyme 1**
 2. Fill a 96-well plate with 2 µL each of the master-mix using a multichannel or liquidator
     - Consider 384-well plates if working with 4 96-well plates
 3. Pipette into each well 1 µL of **Primer A**, using liquidator or multichannel
@@ -108,12 +114,12 @@ Consumables needed for "A Reaction":
     3. Dispense pooled liquid into a low-retention Eppendorf tube (should recover around 400-500 µL of sample).
     - Option B:
     1. Pool samples into a PCR strip tube already containing **75 mM EDTA**, using a multichannel
-9. Ensure each 96-well plate has it’s own pooled tube
+9. Ensure each 96-well plate has it's own pooled tube
 10. Add 1.8 volumes of thoroughly-mixed room temperature **SPRI Beads I** to each pooled tube (use a 1 mL pipette to measure the volume). Mix by pipetting, incubate 10 min at room temperature.
 11. Place tube(s) on dynamag, allow the solution to clear (2-5 min), and discard supernatant.
-12. Keeping tube(s) on the dynamag, add 1300 µL of freshly prepared **80% EtOH** to each tube, wait 30 secs, then aspirate ethanol.
+12. Keeping tube(s) on the dynamag, add 1300 µL of freshly prepared **80% ethanol** to each tube, wait 30 secs, then aspirate ethanol.
       - Repeat this step, and ensure that all ethanol is removed.
-13. Open the caps and allow the beads to air dry on the dynamag for 10 min, don’t overdry.
+13. Open the caps and allow the beads to air dry on the dynamag for 10 min, don't overdry.
 14. Add 50 µL of RT **10 mM Tris-HCl pH 8** to the beads
 15. Remove tube(s) from dynamag, and resuspend the beads until homogenous. Incubate at RT for 10 min to elute.
 16. Allow the beads to clear on dynamag for 2 min, then transfer clarified elution to new low retention PCR tube(s)
@@ -122,18 +128,21 @@ Consumables needed for "A Reaction":
 ## B Reaction: DNA Capture and Library Conversion (~1-2 hours)
 
 Consumables needed for "B Reaction":
-- HS-Buffer
-- Capture Beads
-- Bead Wash Buffer
-- 0.1M NaOH
-- Enzyme II
-- Enzyme II Buffer
-- dNTP Mix II
-- Primer B
-- Nuclease Free Water
+
+```
+HS-Buffer
+Capture Beads
+Bead Wash Buffer
+0.1M NaOH
+Enzyme II
+Enzyme II Buffer
+dNTP Mix II
+Primer B
+Nuclease Free Water
+```
 
 1. Heat-denature the elution at 95˚C for 3 min and hold at 4˚C in a thermocycler
-2. While it’s heating, prep the **Capture Beads**
+2. While it's heating, prep the **Capture Beads**
     1. Warm the **Capture Beads** and **HS-Buffer** to RT, resuspend thoroughly, and transfer 20 µL of slurry for each sample into a new PCR tube.
     2. Dynamag the **Capture Beads** and discard the supernatant.
     3. Remove tubes from dynamag and add 100 µL of **HS-Buffer**
@@ -158,12 +167,18 @@ Consumables needed for "B Reaction":
 ## PCR Amplification (45 mins)
 
 Consumables needed for PCR Amplification:
-- foo
+
+```
+Universal PCR primer
+Index PCR primer(s)
+2X PCR amplification mix from iGenomX
+ddH2O
+```
 
 1. Resuspend the beads in 21 µL of nuclease free water, then setup the PCR reaction by adding:
-    - 2 µL Universal PCR primer
-    - 2 µL Index PCR primer (1-12) (choose one barcoded primer per pool)
-    - 25 µL 2X PCR Amplification Mix
+    - 2 µL **Universal PCR primer**
+    - 2 µL **Index PCR primer** (1-12) (choose one barcoded primer per pool)
+    - 25 µL **2X PCR Amplification Mix**
     - 50 µL total
 2. Input the following program into a thermocycler
 
@@ -183,29 +198,37 @@ Consumables needed for PCR Amplification:
 ## SPRI bead cleanup and gel-isolation (~1 hour)
 
 Consumables needed for SPRI bead cleanup and gel-isolation:
-- foo
 
-1. Add 70 µL of well resuspended RT SPRI Beads II to the samples. Mix well and incubate at RT for 10 min.
-2. During this incubation, pour a 1.0% agarose gel with Sybr-Safe for gel-extraction
+```
+SPRI Beads II
+1% Agarose
+TAE
+80% Ethanol
+10 mM Tris-HCl pH 8
+Gel-extraction kit
+SYBR Safe
+```
+
+1. Add 70 µL of well resuspended **RT SPRI Beads II** to the samples. Mix well and incubate at RT for 10 min.
+2. During this incubation, pour a 1.0% agarose gel with **SYBR Safe** for gel-extraction
 3. Dynamag the beads for at least 2 min, and discard supernatant.
-4. Add 200 µL of 80% ethanol to each tube(s), wait 30 sec, then remove and discard the ethanol
+4. Add 200 µL of **80% ethanol** to each tube(s), wait 30 sec, then remove and discard the ethanol
      - it is unnecessary to remove from magnet for the ethanol wash
-5. Repeat with another 200 µL of 80% ethanol, carefully remove all ethanol from tube without disturbing beads.
+5. Repeat with another 200 µL of **80% ethanol**, carefully remove all ethanol from tube without disturbing beads.
 6. Open cap and allow to air dry for 10 min on dynamag (careful not to overdry).
-7. Add 25 µL of RT 10 mM Tris-HCl (pH8) to beads. Remove from dynamag and fully resuspend the beads.
+7. Add 25 µL of RT **10 mM Tris-HCl pH 8** to beads. Remove from dynamag and fully resuspend the beads.
 8. Incubate at RT for 10min to elute, place back on dynamag and transfer supernatant to new low-retention tubes.
-9. Run sample(s) on a 1.0% agarose gel and gel extract. It should come out as a visible smear, isolate the 400-1200bp region, taking care to avoid the potential primer dimer band.
+9. Run sample(s) on a **1.0% agarose** gel and gel extract. It should come out as a visible smear, isolate the 400-1200bp region, taking care to avoid the potential primer dimer band.
 10. **At this point the protocol can be paused by putting the tube(s) at -20˚C**
 
 # Day 2 - Library Quantification and sequencing setup (45 mins)
 
 Consumables needed for library quantification and sequencing:
-- foo
+- Appropriate MiSeq Kit (see below)
 
-- Every quantification method is slightly different and each comes with its own pros and cons. These issues are exacerbated by the Riptide library product which is a heterogenous mixture of DNA fragment sizes (*see above*).
-- The way we reduce variability in quantification is to quantify a previously run OCTOPUS library and use that as a baseline to estimate the concentration of the current libraries. In our hands, a fluorescence based assay gives sufficiently accurate quantification alongside a previously run library. If no previously run libraries are available, quantification by qPCR has been the most accurate method.
-- Select the appropriate sequencing kit: as a rule of thumb, 10,000 paired-end 150 reads/well, or 1,000,000 reads per 96-well plate (nano-kit V2 for one 96-well plate, micro-kit V2 for a 384-well plate, and a standard V2 kit for anything more than 384-well, the most we do is 3 x 384-wells due to the limited number of index primers in the riptide kit)
-- The only information necessary to generate the sample sheet is to provide the plate index sequences
+Every quantification method is slightly different and each comes with its own pros and cons. These issues are exacerbated by the Riptide library product which is a heterogenous mixture of DNA fragment sizes (*see above*). The way we reduce variability in quantification is to quantify a previously run OCTOPUS library and use that as a baseline to estimate the concentration of the current libraries. In our hands, a fluorescence based assay gives sufficiently accurate quantification alongside a previously run library. If no previously run libraries are available, quantification by qPCR has been the most accurate method.
+1. Select the appropriate sequencing kit: as a rule of thumb, 10,000 paired-end 150 reads/well, or 1,000,000 reads per 96-well plate (nano-kit V2 for one 96-well plate, micro-kit V2 for a 384-well plate, and a standard V2 kit for anything more than 384-well, the most we do is 3 x 384-wells due to the limited number of index primers in the riptide kit)
+2. The only information necessary to generate the sample sheet is to provide the plate index sequences (see below)
 
 **Example sample-sheet.csv:**
 
@@ -244,7 +267,7 @@ OCTOPUS-plate011,plate011,,A011,GCCTAC,,
 OCTOPUS-plate012,plate012,,A012,CTTGTA,,
 ```
 
-- The sequencing run will take ~16-30 hours depending on the size of the kit (nano, micro, standard)
+The sequencing run will take ~16-30 hours depending on the size of the kit (nano, micro, standard)
 
 # Day 3 - Running the computational pipeline (~1 hour)
 
@@ -264,7 +287,7 @@ After preparing the directory, start a docker image in the `octopus` folder and 
 
 ## Interpreting the output
 
-The computational pipeline will automatically generate a new folder with the name of the run-file in the /pipeline/ folder. This folder will contain the results of the analysis and outputs a ‘aggregated-stats.tsv’ file that contains contains the following columns:
+The computational pipeline will automatically generate a new folder with the name of the run-file in the /pipeline/ folder. This folder will contain the results of the analysis and outputs a 'aggregated-stats.tsv' file that contains contains the following columns:
 
 - `Run`: Illumina run ID
 - `Plate`: plate ID
@@ -294,7 +317,7 @@ We analyze our data by pasting the aggregated-stats.tsv into a spreadsheet.
 
 1. If applicable, filter out any "TRUE" values under `BC_Contam`
 2. If applicable, flag or filter out any duplicate barcodes
-3. Filter out any non expected variants. The pipeline will automatically detect any strings of N’s in the input.fasta of the `DeNovo_ref` and identify those as an `expected bcs`. The number of expected barcodes in the aligning sequence will be listed in `expected_bcs`. Assuming that the expected BC(s) was detected, perfect sequences will have the same value in `n_vars` as `expected_bcs` and `n_barcodes`.
+3. Filter out any non expected variants. The pipeline will automatically detect any strings of N's in the input.fasta of the `DeNovo_ref` and identify those as an `expected bcs`. The number of expected barcodes in the aligning sequence will be listed in `expected_bcs`. Assuming that the expected BC(s) was detected, perfect sequences will have the same value in `n_vars` as `expected_bcs` and `n_barcodes`.
 4. You are now ready to select wells to prep. The `plate_well` column will identify which plates/wells from the glycerol plate will correspond to the desired sequences. If possible, select wells with the best coverage as represented by a larger `Leftover` value and with `LT_10` of 0 and `LT_3` of 0. `LT_10` is less critical but `LT_3` should never be larger than 0 (for a 10kb plasmid an `LT_3` of 0.001 means that 10 bp of the plasmid did not have a coverage of at least three).
 5. If there happens to be a clone that does not have sufficient coverage but is absolutely required, use the pileup from `samtools` to manually inspect aligned reads to the `DeNovo_ref` if the missing coverage is in a critical part of the plasmid.
     - In a new terminal, `cd` into your octopus directory
