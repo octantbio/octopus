@@ -5,6 +5,8 @@
 - 0.1 M [Sodium Hydroxide](https://www.fishersci.com/shop/products/sodium-hydroxide-pellets-certified-acs-fisher-chemical-7/S318100)
 - [2xYT](https://us.vwr.com/store/product/7437420/vwr-life-science-2xyt-medium-broth)
 - [Miseq sequencing kits](https://www.illumina.com/products/by-type/sequencing-kits/cluster-gen-sequencing-reagents/miseq-reagent-kit-v2.html)
+- 75 mM EDTA
+- EtOH
 
 # Consumables:
 
@@ -70,13 +72,23 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 
 ## A Reaction: Random primer extension and biotinylated termination (~1 hour)
 
+Consumables needed for "A Reaction":
+- dNTP Mix 1
+- 10X Enzyme 1 Buffer
+- Primer A
+- Enzyme 1
+- SPRI Beads 1
+- 75 mM EDTA
+- 80% EtOH (freshly prepared)
+- 10 mM Tris-HCl pH 8
+
 1. For each 96-well plate, prepare 200 µL of Reaction A master-mix by mixing
-    - 100 µL DNTP Mix 1
-    - 50 µL 10X Enzyme 1 Buffer
-    - 50 µL Enzyme 1
+    - 100 µL **dNTP Mix 1**
+    - 50 µL **10X Enzyme 1 Buffer**
+    - 50 µL *Enzyme 1*
 2. Fill a 96-well plate with 2 µL each of the master-mix using a multichannel or liquidator
     - Consider 384-well plates if working with 4 96-well plates
-3. Pipette into each well 1 µL of Primer A, using liquidator or multichannel
+3. Pipette into each well 1 µL of **Primer A**, using liquidator or multichannel
     - Make sure to properly mix primer A plate if thawing
 4. Pipette into each well 2 µL of clarified lysate using liquidator or multichannel
     - Make sure to properly mix lysate if thawing
@@ -88,51 +100,65 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
     - 68˚C for 15 min
     - Hold at 4˚C
 6. **At this point the protocol can be paused by freezing the plate(s) at -20˚C**
-7. Warm the SPRI Beads I to RT.
+7. Warm the **SPRI Beads I** to RT.
 8. Stop the reaction with EDTA and pool the contents of each 96-well plate
     - Option A:
-    1. Use a liquidator to add 1 µL of 75 mM EDTA to each well
+    1. Use a liquidator to add 1 µL of **75 mM EDTA** to each well
     2. Use those same tips to aspirate and dispense the contents of each 96-well plate onto a clean liquidator tip-box lid and pool everything by tapping the lid at an angle. Make sure all drops are collected.
     3. Dispense pooled liquid into a low-retention Eppendorf tube (should recover around 400-500 µL of sample).
     - Option B:
-    1. Pool samples into a PCR strip tube already containing EDTA, using a multichannel
+    1. Pool samples into a PCR strip tube already containing **75 mM EDTA**, using a multichannel
 9. Ensure each 96-well plate has it’s own pooled tube
 10. Add 1.8 volumes of thoroughly-mixed room temperature **SPRI Beads I** to each pooled tube (use a 1 mL pipette to measure the volume). Mix by pipetting, incubate 10 min at room temperature.
 11. Place tube(s) on dynamag, allow the solution to clear (2-5 min), and discard supernatant.
-12. Keeping tube(s) on the dynamag, add 1300 µL of freshly prepared 80% ethanol to each tube, wait 30 secs, then aspirate ethanol.
+12. Keeping tube(s) on the dynamag, add 1300 µL of freshly prepared **80% EtOH** to each tube, wait 30 secs, then aspirate ethanol.
       - Repeat this step, and ensure that all ethanol is removed.
 13. Open the caps and allow the beads to air dry on the dynamag for 10 min, don’t overdry.
-14. Add 50 µL of RT 10 mM Tris-HCl pH 8 to the beads
+14. Add 50 µL of RT **10 mM Tris-HCl pH 8** to the beads
 15. Remove tube(s) from dynamag, and resuspend the beads until homogenous. Incubate at RT for 10 min to elute.
 16. Allow the beads to clear on dynamag for 2 min, then transfer clarified elution to new low retention PCR tube(s)
 17. **At this point the protocol can be paused by freezing tubes in the -20˚C**
 
 ## B Reaction: DNA Capture and Library Conversion (~1-2 hours)
 
+Consumables needed for "B Reaction":
+- HS-Buffer
+- Capture Beads
+- Bead Wash Buffer
+- 0.1M NaOH
+- Enzyme II
+- Enzyme II Buffer
+- dNTP Mix II
+- Primer B
+- Nuclease Free Water
+
 1. Heat-denature the elution at 95˚C for 3 min and hold at 4˚C in a thermocycler
-2. While it’s heating, prep the Capture Beads
-    1. Warm the Capture Beads and HS-Buffer to RT, resuspend thoroughly, and transfer 20 µL of slurry for each sample into a new PCR tube.
-    2. Dynamag the capture beads and discard the supernatant.
-    3. Remove tubes from dynamag and add 100 µL of HS-Buffer
+2. While it’s heating, prep the **Capture Beads**
+    1. Warm the **Capture Beads** and **HS-Buffer** to RT, resuspend thoroughly, and transfer 20 µL of slurry for each sample into a new PCR tube.
+    2. Dynamag the **Capture Beads** and discard the supernatant.
+    3. Remove tubes from dynamag and add 100 µL of **HS-Buffer**
     4. Dynamag and remove the wash.
-    5. Resuspend the beads in 20 µL of HS-Buffer.
-3. Add all 50 µL of the heat-denatured elution to the washed Capture Beads, mix, and incubate at RT for 10 min.
+    5. Resuspend the beads in 20 µL of **HS-Buffer**.
+3. Add all 50 µL of the heat-denatured elution to the washed **Capture Beads**, mix, and incubate at RT for 10 min.
 4. Pipette mix beads again and incubate at RT for 10 min.
 5. Dynamag the beads and discard the supernatant.
-6. Resuspend beads with 50 µL of 0.1M NaOH, incubate 4 min at RT, dynamag and remove supernatant
-7. Wash the beads 3 times (resuspend beads in 100 µL of RT Bead Wash Buffer, dynamag, remove supernatant). Make sure to remove any remaining liquid after final wash.
-8. Prepare a mastermix for “Reaction B”: for every tube of beads, mix together on ice
-    - 4 µLof 5x Enzyme II Buffer
-    - 1.5 µL DNTP mix II
-    - 2 µL Primer B
-    - 12 µL Nuclease-Free Water
-    - 0.5 µL Enzyme II
-9. Quickly add 19.5 µL of “Reaction B” mastermix to each tube (try not to let mastermix sit around at RT)
+6. Resuspend beads with 50 µL of **0.1M NaOH**, incubate 4 min at RT, dynamag and remove supernatant
+7. Wash the beads 3 times (resuspend beads in 100 µL of RT **Bead Wash Buffer**, dynamag, remove supernatant). Make sure to remove any remaining liquid after final wash.
+8. Prepare a mastermix for **Reaction B**: for every tube of beads, mix together on ice
+    - 4 µL 5x **Enzyme II Buffer**
+    - 1.5 µL **dNTP Mix II**
+    - 2 µL **Primer B**
+    - 12 µL **Nuclease-Free Water**
+    - 0.5 µL **Enzyme II**
+9. Quickly add 19.5 µL of **Reaction B** mastermix to each tube (try not to let mastermix sit around at RT)
 10. Incubate the tubes in a thermocycler for 20 min at 24˚C and hold at 4˚C for at least 3 min
 11. Pipette mix the beads, dynamag and discard supernatant
-12. Wash the beads 3 times (resuspend beads in 100 µL of RT Bead Wash Buffer, dynamag, remove supernatant). Make sure to remove any remaining liquid after final wash.
+12. Wash the beads 3 times (resuspend beads in 100 µL of RT **Bead Wash Buffer**, dynamag, remove supernatant). Make sure to remove any remaining liquid after final wash.
 
 ## PCR Amplification (45 mins)
+
+Consumables needed for PCR Amplification:
+- foo
 
 1. Resuspend the beads in 21 µL of nuclease free water, then setup the PCR reaction by adding:
     - 2 µL Universal PCR primer
@@ -156,6 +182,9 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 
 ## SPRI bead cleanup and gel-isolation (~1 hour)
 
+Consumables needed for SPRI bead cleanup and gel-isolation:
+- foo
+
 1. Add 70 µL of well resuspended RT SPRI Beads II to the samples. Mix well and incubate at RT for 10 min.
 2. During this incubation, pour a 1.0% agarose gel with Sybr-Safe for gel-extraction
 3. Dynamag the beads for at least 2 min, and discard supernatant.
@@ -169,6 +198,9 @@ This protocol is adapted from the iGenomX Riptide library prep protocol [here](h
 10. **At this point the protocol can be paused by putting the tube(s) at -20˚C**
 
 # Day 2 - Library Quantification and sequencing setup (45 mins)
+
+Consumables needed for library quantification and sequencing:
+- foo
 
 - Every quantification method is slightly different and each comes with its own pros and cons. These issues are exacerbated by the Riptide library product which is a heterogenous mixture of DNA fragment sizes (*see above*).
 - The way we reduce variability in quantification is to quantify a previously run OCTOPUS library and use that as a baseline to estimate the concentration of the current libraries. In our hands, a fluorescence based assay gives sufficiently accurate quantification alongside a previously run library. If no previously run libraries are available, quantification by qPCR has been the most accurate method.
