@@ -15,7 +15,7 @@ OCTOPUS is divided into five main steps.
 
 We've used OCTOPUS to sequence ~10,000 plasmids in a 6 month period.
 
-![Plasmids over time](./img/wells-over-time.jpg)
+![Plasmids over time](./img/wells-over-time.png)
 
 
 ## Getting Started
