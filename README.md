@@ -4,6 +4,8 @@ OCTOPUS (Optimized Cloning Through Open-source Pipelined Unabridged Sequencing),
 
 ## How OCTOPUS Works
 
+![Plasmids over time](./img/overview.jpg)
+
 OCTOPUS is divided into five main steps.
 1. colony picking and overnight growth
 2. lysate and glycerol stock generation
