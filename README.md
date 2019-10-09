@@ -30,6 +30,7 @@ We've used OCTOPUS to sequence ~10,000 plasmids in a 6 month period.
 ## Diving Deeper
 
 - [Pipeline Details](https://github.com/octantbio/octopus/wiki/Pipeline-Details)
+- [Experimental Validation](https://github.com/octantbio/octopus/wiki/Experimental-Validation)
 
 ## Contributing
 
