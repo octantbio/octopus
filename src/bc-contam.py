@@ -4,21 +4,20 @@ import shlex
 import argparse
 import subprocess
 from pathlib import Path
-from multiprocessing import Pool,cpu_count
+from multiprocessing import Pool, cpu_count
 from collections import Counter, defaultdict
 
 # catch broken pipe errors to allow ex) python foo.py ... | head
 # see: https://stackoverflow.com/a/30091579
 from signal import signal, SIGPIPE, SIG_DFL
+
 signal(SIGPIPE, SIG_DFL)
+
 
 def proc_tview(pack):
     bam, ref, bc, loc = pack
     tview_cmd = f'samtools tview -d T -p {ref}:{loc}-{int(loc) + len(bc)} {bam}'
-    tview = subprocess.run(
-            shlex.split(tview_cmd),
-            stdout=subprocess.PIPE
-            )
+    tview = subprocess.run(shlex.split(tview_cmd), stdout=subprocess.PIPE)
 
     # normalize text, ignore tview header (first 3 lines),
     # trim barcode, only take full barcodes
@@ -30,36 +29,42 @@ def proc_tview(pack):
     # collapse bcs with starcode
     starcode_cmd = 'starcode --sphere --dist 1'
     starcode = subprocess.run(
-            shlex.split(starcode_cmd),
-            input='\n'.join(f'{bc}\t{reads}' for bc, reads in bcs_reads.items()).encode('utf-8'),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL
-            )
+        shlex.split(starcode_cmd),
+        input='\n'.join(f'{bc}\t{reads}'
+                        for bc, reads in bcs_reads.items()).encode('utf-8'),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL)
 
     # process the output (split on new lines then tab)
     star_out = starcode.stdout.decode('utf-8').rstrip().splitlines()
     star_out = (x.split() for x in star_out)
-    bcs_collapse = Counter({bc:reads for bc,reads in star_out})
+    bcs_collapse = Counter({bc: reads for bc, reads in star_out})
 
-    return((bam, (coverage, bcs_collapse)))
+    return ((bam, (coverage, bcs_collapse)))
+
 
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     description = "Report all reads at the highest depth barcode to check for contamination"
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("input",
-                        nargs="?",
-                        type=argparse.FileType('r'),
-                        help="tidy list of bam file, what it aligned to, a barcode, and its location")
+    parser.add_argument(
+        "input",
+        nargs="?",
+        type=argparse.FileType('r'),
+        help=
+        "tidy list of bam file, what it aligned to, a barcode, and its location"
+    )
     parser.add_argument('-j',
                         '--proc',
                         dest='proc',
                         type=int,
                         default=1,
                         metavar='N',
-                        choices=range(1, cpu_count()+1),
-                        help='number of processors (default=1, max={})'.format(cpu_count()))
+                        choices=range(1,
+                                      cpu_count() + 1),
+                        help='number of processors (default=1, max={})'.format(
+                            cpu_count()))
     args = parser.parse_args()
 
     # build input

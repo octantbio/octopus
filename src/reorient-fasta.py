@@ -7,6 +7,7 @@ import itertools
 # catch broken pipe errors to allow ex) python foo.py ... | head
 # see: https://stackoverflow.com/a/30091579
 from signal import signal, SIGPIPE, SIG_DFL
+
 signal(SIGPIPE, SIG_DFL)
 
 #===============================================================================
@@ -14,10 +15,14 @@ signal(SIGPIPE, SIG_DFL)
 # silly over optimization to make a fast reverse compliment
 # see: https://bioinformatics.stackexchange.com/q/3583
 COMP = str.maketrans("ACTGacgt", "TGACtgca")
+
+
 def rev_comp(seq):
     return seq.translate(COMP)[::-1]
 
+
 #-------------------------------------------------------------------------------
+
 
 def fasta_reader(fasta):
     """
@@ -53,7 +58,8 @@ def fasta_reader(fasta):
     Adapted from: https://www.biostars.org/p/710/#1412
     """
     # ditch the boolean (x[0]) and just keep the header/seq grouping
-    fa_iter = (x[1] for x in itertools.groupby(fasta, lambda line: line[0] == ">"))
+    fa_iter = (x[1]
+               for x in itertools.groupby(fasta, lambda line: line[0] == ">"))
     for header in fa_iter:
         # drop the ">"
         name = next(header)[1:].strip()
@@ -61,7 +67,9 @@ def fasta_reader(fasta):
         read = "".join(s.strip() for s in next(fa_iter))
         yield name, read
 
+
 #-------------------------------------------------------------------------------
+
 
 def find_seq(pattern, seq):
     """
@@ -83,13 +91,18 @@ def find_seq(pattern, seq):
     --------
     itertools, re
     """
-    search = [m.start(0) for m in re.finditer(pattern, seq + seq) if m.start() < len(seq)]
+    search = [
+        m.start(0) for m in re.finditer(pattern, seq + seq)
+        if m.start() < len(seq)
+    ]
     if not search:
         return -1
     else:
         return search[0]
 
+
 #-------------------------------------------------------------------------------
+
 
 def orient_seqs(pattern, fasta):
     """
@@ -120,7 +133,8 @@ def orient_seqs(pattern, fasta):
             if ori_pos_2 == -1:
                 bad_seqs.append((name, seq))
             else:
-                good_seqs.append((name, seq_rc[ori_pos_2:] + seq_rc[:ori_pos_2]))
+                good_seqs.append(
+                    (name, seq_rc[ori_pos_2:] + seq_rc[:ori_pos_2]))
 
     return (good_seqs, bad_seqs)
 
@@ -132,13 +146,14 @@ if __name__ == '__main__':
                         nargs="+",
                         type=argparse.FileType('r'),
                         help="fasta's to process")
-    parser.add_argument('-r',
-                        '--records',
-                        type=int,
-                        dest='num_records',
-                        metavar='N',
-                        default='0',
-                        help='number of records in the fasta to process (default = all)')
+    parser.add_argument(
+        '-r',
+        '--records',
+        type=int,
+        dest='num_records',
+        metavar='N',
+        default='0',
+        help='number of records in the fasta to process (default = all)')
     parser.add_argument('--ori',
                         type=str,
                         dest='ori_seq',
@@ -169,7 +184,8 @@ if __name__ == '__main__':
 
         # create the fasta header and include the file name
         for name, seq in good:
-            print('>{}\n{}'.format(basename + "_" + name, seq), file=sys.stdout)
+            print('>{}\n{}'.format(basename + "_" + name, seq),
+                  file=sys.stdout)
 
         # send the bad reads to std.err if verbose
         if bad and args.verbose:
