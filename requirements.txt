@@ -1,0 +1,5 @@
+stringdist
+pandas
+numpy
+requests
+openpyxl==3.0.7

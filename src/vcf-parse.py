@@ -8,9 +8,11 @@ from pathlib import Path
 # catch broken pipe errors to allow ex) python foo.py ... | head
 # see: https://stackoverflow.com/a/30091579
 from signal import signal, SIGPIPE, SIG_DFL
+
 signal(SIGPIPE, SIG_DFL)
 
 #-------------------------------------------------------------------------------
+
 
 def fasta_reader(fasta):
     """
@@ -46,13 +48,15 @@ def fasta_reader(fasta):
     Adapted from: https://www.biostars.org/p/710/#1412
     """
     # ditch the boolean (x[0]) and just keep the header/seq grouping
-    fa_iter = (x[1] for x in itertools.groupby(fasta, lambda line: line[0] == ">"))
+    fa_iter = (x[1]
+               for x in itertools.groupby(fasta, lambda line: line[0] == ">"))
     for header in fa_iter:
         # drop the ">"
         name = next(header)[1:].strip()
         # join all sequence lines to one by iterating until the next group.
         read = "".join(s.strip() for s in next(fa_iter))
         yield name, read
+
 
 #-------------------------------------------------------------------------------
 
@@ -71,7 +75,10 @@ if __name__ == '__main__':
     # find all barcodes in the input fasta and drop their lens into a dict
     bcs = re.compile(r'N+')
     input_fasta = ((x[0], x[1].upper()) for x in fasta_reader(args.fasta))
-    bc_dict = {ref:[len(x[0]) for x in re.finditer(bcs,seq)] for ref,seq in input_fasta}
+    bc_dict = {
+        ref: [len(x[0]) for x in re.finditer(bcs, seq)]
+        for ref, seq in input_fasta
+    }
 
     barcodes = []
     n_vars = 0
@@ -96,8 +103,11 @@ if __name__ == '__main__':
     # graceful exit for no barcode
     n_barcodes = len(barcodes)
     if n_barcodes == 0:
-        print(f'{ref}\t1\tNA\tNA\t{n_vars}\t0\t{expected_bcs}', file=sys.stdout)
+        print(f'{ref}\t1\tNA\tNA\t{n_vars}\t0\t{expected_bcs}',
+              file=sys.stdout)
     # taking advantage of new f-strings
     for idx, tmp in enumerate(barcodes):
         ref, pos, bc = tmp
-        print(f'{ref}\t{idx+1}\t{bc}\t{pos}\t{n_vars}\t{n_barcodes}\t{expected_bcs}', file=sys.stdout)
+        print(
+            f'{ref}\t{idx+1}\t{bc}\t{pos}\t{n_vars}\t{n_barcodes}\t{expected_bcs}',
+            file=sys.stdout)

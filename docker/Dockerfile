@@ -24,10 +24,6 @@ ENV freebayes_version 1.3.1
 
 ENV starcode_version 1.3
 
-ENV opentrons_version 3.11.4
-ENV pandas_version 0.25.1
-ENV biopython_version 1.74
-
 #===============================================================================
 # Install extra *nix utils
 
@@ -40,7 +36,7 @@ RUN apt-get update \
     wget \
     parallel \
     openjdk-8-jdk \
-    python3
+    python3-dev
 
 RUN echo 'will cite' | parallel --citation 1> /dev/null 2> /dev/null
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -149,13 +145,58 @@ RUN set -u; \
     && cp starcode /usr/local/bin/starcode \
     && rm ../starcode.tar.gz
 
-# opentrons
+# python requirements 
 WORKDIR /usr/local
 RUN set -u; \
-    curl https://bootstrap.pypa.io/get-pip.py | python \
+    curl https://bootstrap.pypa.io/get-pip.py | python3 \
     && pip install \
-    opentrons=="${opentrons_version}" \
-    pandas=="${pandas_version}" \
-    biopython=="${biopython_version}"
+    pandas \
+    numpy \
+    stringdist \
+    requests \
+    openpyxl==3.0.7
 
-WORKDIR /root
+#===============================================================================
+# R install - lifted from
+# https://github.com/rocker-org/rocker/blob/master/r-apt/bionic/Dockerfile
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        littler \
+        r-base \
+        r-base-dev \
+        r-recommended \
+        r-cran-rcpp \
+    && ln -s /usr/lib/R/site-library/littler/examples/install.r /usr/local/bin/install.r \
+    && ln -s /usr/lib/R/site-library/littler/examples/install2.r /usr/local/bin/install2.r \
+    && ln -s /usr/lib/R/site-library/littler/examples/installGithub.r /usr/local/bin/installGithub.r \
+    && ln -s /usr/lib/R/site-library/littler/examples/testInstalled.r /usr/local/bin/testInstalled.r \
+    && install.r docopt \
+    && rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
+    && rm -rf /var/lib/apt/lists/*
+
+# tidyverse install. adopted from
+# https://github.com/rocker-org/rocker-versioned2/blob/master/scripts/install_tidyverse.sh
+RUN apt-get update -qq && apt-get -y --no-install-recommends install \
+    libxml2-dev \
+    libcairo2-dev \
+    libgit2-dev \
+    default-libmysqlclient-dev \
+    libpq-dev \
+    libsasl2-dev \
+    libsqlite3-dev \
+    libssh2-1-dev \
+    unixodbc-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# defaulted ncpus to 16
+RUN install2.r --error \
+    tidyverse \
+    devtools \
+    rmarkdown \
+    vroom \
+    gert \
+    optparse
+
+#===============================================================================
+WORKDIR /home

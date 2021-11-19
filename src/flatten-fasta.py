@@ -8,9 +8,11 @@ from pathlib import Path
 # catch broken pipe errors to allow ex) python foo.py ... | head
 # see: https://stackoverflow.com/a/30091579
 from signal import signal, SIGPIPE, SIG_DFL
+
 signal(SIGPIPE, SIG_DFL)
 
 #===============================================================================
+
 
 def fasta_reader(fasta):
     """
@@ -46,13 +48,15 @@ def fasta_reader(fasta):
     Adapted from: https://www.biostars.org/p/710/#1412
     """
     # ditch the boolean (x[0]) and just keep the header/seq grouping
-    fa_iter = (x[1] for x in itertools.groupby(fasta, lambda line: line[0] == ">"))
+    fa_iter = (x[1]
+               for x in itertools.groupby(fasta, lambda line: line[0] == ">"))
     for header in fa_iter:
         # drop the ">"
         name = next(header)[1:].strip()
         # join all sequence lines to one by iterating until the next group.
         read = "".join(s.strip() for s in next(fa_iter))
         yield name, read
+
 
 #===============================================================================
 
@@ -63,18 +67,18 @@ if __name__ == '__main__':
                         nargs="+",
                         type=argparse.FileType('r'),
                         help="fasta's to process")
-    parser.add_argument('-r',
-                        '--records',
-                        type=int,
-                        dest='num_records',
-                        metavar='N',
-                        default='0',
-                        help='number of records in the fasta to process (default = all)')
+    parser.add_argument(
+        '-r',
+        '--records',
+        type=int,
+        dest='num_records',
+        metavar='N',
+        default='0',
+        help='number of records in the fasta to process (default = all)')
     parser.add_argument('--no-flat',
                         dest='no_flat',
                         action='store_true',
-                        help='just output the file'
-                        )
+                        help='just output the file')
     args = parser.parse_args()
 
     if args.num_records < 0:
@@ -99,4 +103,3 @@ if __name__ == '__main__':
                 print(f'>{basename + "_" + name}\n{seq}', file=sys.stdout)
             else:
                 print(f'>{basename + "_" + name}\n{seq+seq}', file=sys.stdout)
-
