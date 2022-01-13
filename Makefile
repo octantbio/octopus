@@ -322,7 +322,7 @@ pipeline/%/lt-X.tsv: pipeline/%/plates.txt pipeline/%/guided
 # finally clean up the pipeline/run/plate/well.map.bam into columns
 pipeline/%/barcode-filter.tsv: pipeline/%/freebayes-tidy.tsv
 	@echo "Checking for contaminated barcodes"
-	@awk 'NR > 1{print "pipeline",$$1,$$2,$$3".map.bam "$$4" "$$6" "$$7}' \
+	@awk '{print "pipeline",$$1,$$2,$$3".map.bam "$$4" "$$6" "$$7}' \
 	    OFS='/' $< \
 	    | python src/bc-contam.py - \
 	    | mlr --tsvlite --implicit-csv-header \
