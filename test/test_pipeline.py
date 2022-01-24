@@ -1,4 +1,7 @@
 """High-level integration tests covering the entire pipeline."""
+import os
+import subprocess
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
@@ -19,7 +22,7 @@ def compare_aggregated_stats(expected_fn: str, actual_fn: str):
     Args:
         expected_fn: Path to "aggregated-stats.tsv" with expected values.
         actual_fn: Path to an actual "aggregated-stats.tsv" from the pipeline. 
-    
+
     Raises:
         AssertionError: one or more fields does not match.
     """
@@ -44,3 +47,40 @@ def compare_aggregated_stats(expected_fn: str, actual_fn: str):
                        test_df["LT_3_expected"],
                        rtol=0.01,
                        equal_nan=True)
+
+
+def test_pOK_barcode_full(tmp_path):
+    """Tests the whole pipeline using the pOK_barcode dataset.
+    
+    Assumes that the current directory is the root of the OCTOPUS repository. 
+    Intermediate files are created in a temporary directory.
+
+    Args:
+        tmp_path: Path to a new temporary directory.
+    
+    Raises:
+        AssertionError: if the pipeline crashes or "aggregated-stats.tsv" does 
+            not match the expected output.
+    """
+    project_dir = Path(os.getcwd())
+    make_path = project_dir / "Makefile"
+
+    # Create the data folder and symlink to it
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "pOK_barcode_test").symlink_to(
+        project_dir / "test" / "pOK_barcode_test", target_is_directory=True)
+
+    # HACK: Makefile uses relative paths, so we link to the src as a workaround
+    (tmp_path / "src").symlink_to(project_dir / "src")
+
+    output_file = "pipeline/pOK_barcode_test/aggregated-stats.tsv"
+    os.chdir(tmp_path)
+    args = ["make", "-f", str(make_path), str(output_file)]
+    # pylint: disable=subprocess-run-check
+    cmd = subprocess.run(args,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    assert cmd.returncode == 0
+    compare_aggregated_stats(
+        tmp_path / output_file,
+        project_dir / "test" / "pOK_barcode-aggregated-stats.tsv")
