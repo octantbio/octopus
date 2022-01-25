@@ -51,13 +51,13 @@ def compare_aggregated_stats(expected_fn: str, actual_fn: str):
 
 def test_pOK_barcode_full(tmp_path):
     """Tests the whole pipeline using the pOK_barcode dataset.
-    
+
     Assumes that the current directory is the root of the OCTOPUS repository. 
     Intermediate files are created in a temporary directory.
 
     Args:
         tmp_path: Path to a new temporary directory.
-    
+
     Raises:
         AssertionError: if the pipeline crashes or "aggregated-stats.tsv" does 
             not match the expected output.
@@ -82,5 +82,5 @@ def test_pOK_barcode_full(tmp_path):
                          stderr=subprocess.STDOUT)
     assert cmd.returncode == 0
     compare_aggregated_stats(
-        tmp_path / output_file,
-        project_dir / "test" / "pOK_barcode-aggregated-stats.tsv")
+        project_dir / "test" / "pOK_barcode-aggregated-stats.tsv",
+        tmp_path / output_file)
