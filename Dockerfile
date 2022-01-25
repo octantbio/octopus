@@ -200,4 +200,11 @@ RUN install2.r --error \
     optparse
 
 #===============================================================================
+# set up this version of the pipeline inside the image under /opt
+RUN mkdir -p /opt/octopus/data /opt/octopus/pipeline
+# copy latest source code, test data, and Makefile
+COPY src/ /opt/octopus/src/
+COPY test/ /opt/octopus/test
+COPY LICENSE Makefile /opt/octopus/
+
 WORKDIR /home

@@ -1,0 +1,10 @@
+# backups and bytecode
+*.swp
+*/__pycache__
+
+# git stuff
+.git
+
+# input and output files
+data
+pipeline
