@@ -12,7 +12,7 @@ WELL="$(basename -s "_R1.fastq.gz" "$1")"
 OUT_DIR="$(dirname "$1")"
 
 THREADS=1
-MEM="-Xmx64g"
+MEM="-Xmx8g"
 
 # send all temp files to the scratch directory
 # trap ensures that scratch will be deleted no matter what

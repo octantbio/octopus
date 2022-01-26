@@ -14,7 +14,7 @@ WELL="$(basename -s ".ecc.fq.gz" ${READ_1})"
 OUT_DIR="$(dirname ${READ_1})"
 
 THREADS="threads=1"
-MEM="-Xmx32g"
+MEM="-Xmx8g"
 
 # send all temp files to the scratch directory
 # trap ensures that scratch will be deleted no matter what
