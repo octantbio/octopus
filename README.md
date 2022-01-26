@@ -1,4 +1,5 @@
 # OCTOPUS
+[![pytest-integration](https://github.com/octantbio/octopus/actions/workflows/pytest-integration.yml/badge.svg)](https://github.com/octantbio/octopus/actions/workflows/pytest-integration.yml)
 
 OCTOPUS (Optimized Cloning Through Open-source Pipelined Unabridged Sequencing), is a light-weight, cost-effective, and robust method for full-plasmid sequence verification using next-generation sequencing. Importantly, OCTOPUS can be performed at scale with common lab equipment and uses crude E. coli lysate (rather than purified DNA) as the input. This reduces up-front capital investment by eliminating the need for expensive nano-volume liquid handlers and automated plasmid purification pipelines. Using OCTOPUS, a single molecular biology researcher can sequence verify 96-1152 colonies in three days for ~$5 a sample.
 
