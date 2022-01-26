@@ -1,0 +1,35 @@
+# Run a complete integration test based on pytest.
+
+name: pytest-integration
+on:
+  # Run this status check if we push to master or open a PR into master.
+  pull_request:
+    branches: [ master ]
+    # Only run this check if we modify the Makefile, source code, test data, 
+    # or this action itself.
+    paths: ["Makefile", "src/**", "test/**", ".github/workflows/pytest-integration.yml"]
+  push:
+    branches: [ master ]
+    paths: ["Makefile", "src/**", "test/**", ".github/workflows/pytest-integration.yml"]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    # TODO: add strategy: matrix testing with python versions here
+    # (might be better with unit tests)
+    steps:
+      # Normally we would use actions/checkout@v2 here, but we want need to
+      # pull the FASTQs stored with git LFS for our testcases.
+      # We use a third-party action that caches LFS files to save bandwidth.
+      # Read more: https://github.com/nschloe/action-cached-lfs-checkout
+      - name: Git checkout and pull LFS with cache
+        uses: nschloe/action-cached-lfs-checkout@v1.0.1
+
+      # Takes ~20 min to build image (mostly compiling tidyverse packages). 
+      # TODO: use action docker/build-push-action to massively speed this up.
+      - name: Build latest docker image
+        run: docker build -t octopus .
+
+      # Takes ~30 min on a typical desktop computer.
+      - name: Run pytest inside docker image 
+        run: docker run octopus /bin/bash -c "cd /opt/octopus; pytest"
