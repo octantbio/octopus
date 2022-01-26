@@ -77,10 +77,8 @@ def test_pOK_barcode_full(tmp_path):
     os.chdir(tmp_path)
     args = ["make", "-f", str(make_path), str(output_file)]
     # pylint: disable=subprocess-run-check
-    cmd = subprocess.run(args,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-    assert cmd.returncode == 0
+    cmd = subprocess.run(args, stderr=subprocess.STDOUT)
+    assert cmd.returncode == 0, "make had non-zero exit status"
     compare_aggregated_stats(
         project_dir / "test" / "pOK_barcode-aggregated-stats.tsv",
         tmp_path / output_file)
