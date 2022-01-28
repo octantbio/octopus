@@ -38,7 +38,7 @@ pipeline/%/input.fasta pipeline/%/fastqs: | data/%
 # -print0 ensures nasty filenames are handled with grace
 # anything that parses plates.txt must handle null characters
 pipeline/%/plates.txt: pipeline/%/fastqs
-	@find -path "./$</*.fastq*" ! -regex '.*Undetermined.*' -print0 \
+	@find -L -path "./$</*.fastq*" ! -regex '.*Undetermined.*' -print0 \
 	    | sed --null-data -e 's/_R.*//' \
 	    | sort --zero-terminated \
 	    | uniq --zero-terminated \
@@ -95,7 +95,7 @@ src/background.fasta:
 pipeline/%/preproc: pipeline/%/plates.txt pipeline/%/demux src/background.fasta
 	@echo "Preprocessing plates in $(<D)"
 	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.fastq*|' $< \
-	    | xargs --null -n1 -I {} find -path {} ! -regex '.*unmatched.*' -print0 \
+	    | xargs --null -n1 -I {} find -L -path {} ! -regex '.*unmatched.*' -print0 \
 	    | sort --zero-terminated \
 	    | parallel --null -n2 src/jgi-preproc.sh {} $(lastword $^) \
 	    && touch $@
@@ -107,7 +107,7 @@ pipeline/%/preproc: pipeline/%/plates.txt pipeline/%/demux src/background.fasta
 pipeline/%/read-stats.tsv: pipeline/%/plates.txt pipeline/%/preproc
 	@echo "Calculating well statistics for $(<D)"
 	@sed --null-data -e 's|^|./$(<D)/|' $< \
-	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | xargs --null -n1 -I {} find -L -path {} -print0 \
 	    | parallel --null \
 	    grep -F -B4 \'Unique 31\' {}/*.pre-proc \
 	    \| sed -e \''/Total /d; /Input/d; /Unique/d; /--/d'\' \
@@ -130,7 +130,7 @@ pipeline/%/read-stats.tsv: pipeline/%/plates.txt pipeline/%/preproc
 pipeline/%/de-novo: pipeline/%/plates.txt pipeline/%/preproc
 	@echo "De novo assembling all plates in $(<D)"
 	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.ecc.fq.gz|' $< \
-	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | xargs --null -n1 -I {} find -L -path {} -print0 \
 	    | parallel --null src/jgi-denovo.sh {} \
 	    && touch $@
 
@@ -162,7 +162,7 @@ pipeline/%/spades-contigs.fasta: pipeline/%/plates.txt pipeline/%/de-novo
 	@echo "Aggregating all contigs in $(<D)"
 	@mkdir -p $(@:.fasta=) \
 	    && sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.spades-contig.fasta|' $< \
-	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | xargs --null -n1 -I {} find -L -path {} -print0 \
 	    | parallel --null \
 	    'well="$$(basename -s .spades-contig.fasta {/})"; \
 	    plate="$$(basename {//})"; \
@@ -259,7 +259,7 @@ pipeline/%/guided: pipeline/%/de-novo-ref-stats.tsv pipeline/%/preproc pipeline/
 pipeline/%/freebayes-tidy.tsv: pipeline/%/plates.txt pipeline/%/input-refs.fasta pipeline/%/guided
 	@echo "Parsing variants from FreeBayes for $(<D)"
 	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.freebayes.bcf|' $< \
-	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | xargs --null -n1 -I {} find -L -path {} -print0 \
 	    | parallel --null \
 	    bcftools view {} \
 	    \| python src/vcf-parse.py $(word 2, $^) - \
@@ -296,7 +296,7 @@ pipeline/%/freebayes.tsv: pipeline/%/freebayes-tidy.tsv
 pipeline/%/lt-X.tsv: pipeline/%/plates.txt pipeline/%/guided
 	@echo "Calculating percent bases <10x and <3x coverage for $(@D)"
 	@sed --null-data -e 's|^|./$(<D)/|' -e 's|$$|/*.map.bam|' $< \
-	    | xargs --null -n1 -I {} find -path {} -print0 \
+	    | xargs --null -n1 -I {} find -L -path {} -print0 \
 	    | parallel --null \
 	    samtools depth -aa -d0 {} \
 	    \| awk -v path='{= s:\.map\.bam:: =}' \
