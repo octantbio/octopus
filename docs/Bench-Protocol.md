@@ -3,7 +3,7 @@
 - [Reagents](#reagents)
 - [Consumables](#consumables)
 - [Equipment](#equipment)
-- [Day 1 - Picking colonies](#day-1---picking-colonies-10-15-mins-per-96-colonies)
+- [Day 1 - Picking colonies](#day-1---picking-colonies-10-15-min-per-96-colonies)
 - [Day 2 - Lysate and glycerol stock generation](#day-2---lysate-and-glycerol-stock-generation-1-2-hours)
 - [Day 2 - "Miniaturized" Riptide protocol](#day-2---miniaturized-riptide-protocol-4-6-hours)
     - [Random primer extension and biotinylated termination](#a-reaction-random-primer-extension-and-biotinylated-termination-1-hour)
