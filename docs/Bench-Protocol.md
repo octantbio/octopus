@@ -1,3 +1,5 @@
+**UPDATE:** There is now an update to the protocol we want to share that uses RCA for OCTOPUS sample plate generation as an alternative to the lysate generation steps below. Our motivation for this was to minimize genomic DNA contaminant reads in the final NGS pool which increases plasmid/genomic DNA ratio as well as to offload some of the labor required in Day 2 to Day 1. Additionally, this adds further flexibility to scaling OCTOPUS runs, as lysate generation was the least scalable step in the older protocol. The updated protocol can be [read here](Bench-Protocol-with-RCA.md).
+
 # Table of Contents
 
 - [Reagents](#reagents)
