@@ -1,9 +1,11 @@
+Below reflects the updated protocol that replaces sample preparation by lysate generation on Day 2 with RCA preparation on Day 1.
+
 # Table of Contents
 
 - [Reagents](#reagents)
 - [Consumables](#consumables)
 - [Equipment](#equipment)
-- [Day 1 - Sample Preparation](#day-1---sample-preparation-1-hour)
+- [Day 1 - Sample Preparation](#day-1---sample-preparation-and-rca-1-hour)
 - [Day 2 - "Miniaturized" Riptide protocol](#day-2---miniaturized-riptide-protocol-4-6-hours)
     - [Random primer extension and biotinylated termination](#a-reaction-random-primer-extension-and-biotinylated-termination-1-hour)
     - [DNA capture and library conversion](#b-reaction-dna-capture-and-library-conversion-1-2-hours)
@@ -53,7 +55,7 @@
 - [Dynamag](https://www.thermofisher.com/order/catalog/product/12321D) (or magnetic tube stand)
 - [Multi-tube vortexer](https://ru.vwr.com/store/product/596528/multi-tube-vortexers) (optional)
 
-# Day 1 - Sample Preparation (~1 hour)
+# Day 1 - Sample Preparation and RCA (~1 hour)
 
 1. Prepare 2500+ µl of ddH2O and aliquot 25 µl into each well in a 96-well plate. This will be referred to as the Sample Plate. If running more than one plate, stamp out the ddH2O to multiple plates.
     - Don't aliquot the ddH2O into wells designed for already purified plasmids. Instead, only add to those wells at least 5 µl of the plasmid at a concentration of 1 - 10 ng/µl.
