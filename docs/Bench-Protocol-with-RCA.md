@@ -5,7 +5,7 @@ Below reflects the updated protocol that replaces sample preparation by lysate g
 - [Reagents](#reagents)
 - [Consumables](#consumables)
 - [Equipment](#equipment)
-- [Day 1 - Colony picking and RCA](#day-1---colony-picking-and-rca-1-hour)
+- [Day 1 - Colony picking and RCA](#day-1---colony-picking-and-rca-1-2-hours)
 - [Day 2 - "Miniaturized" Riptide protocol](#day-2---miniaturized-riptide-protocol-4-6-hours)
     - [Random primer extension and biotinylated termination](#a-reaction-random-primer-extension-and-biotinylated-termination-1-hour)
     - [DNA capture and library conversion](#b-reaction-dna-capture-and-library-conversion-1-2-hours)
