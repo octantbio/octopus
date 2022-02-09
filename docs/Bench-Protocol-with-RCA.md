@@ -1,4 +1,4 @@
-Below reflects the updated protocol that replaces sample preparation by lysate generation on Day 2 with RCA preparation on Day 1.
+Below reflects the updated protocol that replaces input DNA preparation by whole cell lysate generation on Day 2 with RCA preparation on Day 1. Advantages here are that it moves a laborious step from the library preperation on Day 2 (the longest day) to day one during colony picking. It also reduces genomic DNA contamination and increases the yield and robustness of the library prep greatly.
 
 # Table of Contents
 
