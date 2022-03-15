@@ -6,9 +6,9 @@
 
 ## Getting Started
 
-- [Installation](https://github.com/octantbio/octopus/wiki/Installation)
-- [Bench Protocol](https://github.com/octantbio/octopus/wiki/Bench-Protocol)
-- [Running the Analysis Pipeline](https://github.com/octantbio/octopus/wiki/Running-the-Analysis-Pipeline)
+- [Installation](./docs/Installation.md)
+- [Bench Protocol](./docs/Bench-Protocol.md)
+- [Running the Analysis Pipeline](./docs/Running-the-Analysis-Pipeline.md)
 
 
 ## What is OCTOPUS?
@@ -28,9 +28,6 @@ Did we mention scalable? OCTOPUS has allowed us to sequence thousands of colonie
 
 ![Plasmids over time](./img/wells-over-time.png)
 
-Interested in learning more?
-[Check out our documentation for more information](link to docs).
-
 ### How OCTOPUS Works
 
 ![OCTOPUS overview](./img/overview.jpg)
@@ -43,10 +40,8 @@ OCTOPUS is divided into six main steps.
 5. turn-key data analysis
 6. pick perfect sequences
 
-## Diving Deeper
-
-- [Pipeline Details](https://github.com/octantbio/octopus/wiki/Pipeline-Details)
-- [Experimental Validation](https://github.com/octantbio/octopus/wiki/Experimental-Validation)
+Interested in learning more?
+[Check out our documentation for more information](./docs/).
 
 ## Contributing
 
