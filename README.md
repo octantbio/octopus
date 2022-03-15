@@ -29,7 +29,8 @@ Did we mention scalable? OCTOPUS has allowed us to sequence thousands of colonie
 
 ![Plasmids over time](./img/wells-over-time.png)
 
-Interested in learning more? 
+Interested in learning more?
+[Check out our documentation for more information](link to docs).
 
 ### How OCTOPUS Works
 
@@ -37,8 +38,7 @@ Interested in learning more?
 
 OCTOPUS is divided into six main steps.
 1. Colony picking and glycerol stock setup
-    2a. Overnight growth and lysate generation or...
-    2b. Overnight rolling circle amplification
+2. Overnight growth and lystate generation (_or rolling circle amplication_)
 3. iGenomX Riptide kit library preparation
 4. Illumina sequencing
 5. turn-key data analysis
