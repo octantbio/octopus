@@ -37,8 +37,8 @@ OCTOPUS is divided into six main steps.
 2. Overnight growth and lystate generation (_or rolling circle amplication_)
 3. iGenomX Riptide kit library preparation
 4. Illumina sequencing
-5. turn-key data analysis
-6. pick perfect sequences
+5. Turn-key data analysis
+6. Pick perfect sequences
 
 Interested in learning more?
 [Check out our documentation for more information](./docs/).
