@@ -16,7 +16,7 @@
 OCTOPUS is a light-weight, cost-effective, and robust method for full-plasmid sequence verification using next-generation sequencing.
 This respository provides both the bench protocol and complete source code to allow anyone to run this plasmid sequencing pipeline for themselves.
 
-You can read more about the story of OCTOPUS in our [2022 blog post](https://www.octant.bio/blog-posts/octopus), but it's worth summarizing a few features that make OCTOPUS stand out:
+You can read more about the story of OCTOPUS in our [2022 blog post](https://www.octant.bio/blog-posts/octopus-v2-0), but it's worth summarizing a few features that make OCTOPUS stand out:
 
 - Scalable: one research associate can sequence hundreds—or even thousands—of colonies a week
 - Inexpensive: around $5 a sample
@@ -52,7 +52,7 @@ Pull requests are also welcome.
 
 ## License
 
-This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details. Additional licensing information:
+This project (including the bench protocol and source code) is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details. Additional licensing information:
 
 - [BBTools](docker/bbtools-license) - custom
 - [mlr](docker/mlr-license) - custom
@@ -65,3 +65,5 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 - [htslib](https://github.com/samtools/htslib/blob/develop/LICENSE) - MIT
 - [freebayes](https://github.com/ekg/freebayes/blob/master/LICENSE) - MIT
 
+
+[OCTOPUS logo](./img/octopus-logo.png) copyright Octant Bio. All rights reserved.
