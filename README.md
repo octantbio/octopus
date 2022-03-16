@@ -24,9 +24,9 @@ You can read more about the story of OCTOPUS in our [2022 blog post](https://www
 - Easy: OCTOPUS can be performed at scale with common lab equipment (no upfront capital investment in esoteric instruments)
 - Straighforward: OCTOPUS works directly off of picked colonies and crude lysates (no automated DNA purification required)
 
-Did we mention scalable? OCTOPUS has allowed us to sequence thousands of colonies a month over the past several months.
+Did we mention scalable? OCTOPUS has allowed us to sequence thousands of colonies a month for over three years.
 
-![Plasmids over time](./img/wells-over-time.png)
+<img alt="cumulative wells sequenced plot" src="./img/cumulative-wells-sequenced.png" width="70%">
 
 ### How OCTOPUS Works
 
