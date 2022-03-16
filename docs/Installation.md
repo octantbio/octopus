@@ -20,7 +20,7 @@ cd octopus
 docker build .
 ```
 
-It is possible to run OCTOPUS without `docker`, but not recommended. If you insist, see the [dockerfile](docker/Dockerfile) for help.
+It is possible to run OCTOPUS without `docker`, but not recommended. If you insist, see the [dockerfile](../Dockerfile) for help.
 
 ## OCTOPUS
 
