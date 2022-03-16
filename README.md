@@ -1,41 +1,54 @@
-# OCTOPUS
+![OCTOPUS logo](./img/octopus-logo.png)
+
 [![pytest-integration](https://github.com/octantbio/octopus/actions/workflows/pytest-integration.yml/badge.svg)](https://github.com/octantbio/octopus/actions/workflows/pytest-integration.yml)
 
-OCTOPUS (Optimized Cloning Through Open-source Pipelined Unabridged Sequencing), is a light-weight, cost-effective, and robust method for full-plasmid sequence verification using next-generation sequencing. Importantly, OCTOPUS can be performed at scale with common lab equipment and uses crude E. coli lysate (rather than purified DNA) as the input. This reduces up-front capital investment by eliminating the need for expensive nano-volume liquid handlers and automated plasmid purification pipelines. Using OCTOPUS, a single molecular biology researcher can sequence verify 96-1152 colonies in three days for ~$5 a sample.
+(**O**ptimized **C**loning **T**hrough **O**pen-source **P**ipelined **U**nabridged **S**equencing)
 
-## How OCTOPUS Works
+## Getting Started
+
+- [Installation](./docs/Installation.md)
+- [Bench Protocol](./docs/Bench-Protocol.md)
+- [Running the Analysis Pipeline](./docs/Running-the-Analysis-Pipeline.md)
+
+
+## What is OCTOPUS?
+
+OCTOPUS is a light-weight, cost-effective, and robust method for full-plasmid sequence verification using next-generation sequencing.
+This respository provides both the bench protocol and complete source code to allow anyone to run this plasmid sequencing pipeline for themselves.
+
+You can read more about the story of OCTOPUS in our [2022 blog post](https://www.octant.bio/blog-posts/octopus), but it's worth summarizing a few features that make OCTOPUS stand out:
+
+- Scalable: one research associate can sequence hundreds—or even thousands—of colonies a week
+- Inexpensive: around $5 a sample
+- Robust: our RCA-based protocol performs exceedingly well and automated QC can detect common colony-picking errors
+- Easy: OCTOPUS can be performed at scale with common lab equipment (no upfront capital investment in esoteric instruments)
+- Straighforward: OCTOPUS works directly off of picked colonies and crude lysates (no automated DNA purification required)
+
+Did we mention scalable? OCTOPUS has allowed us to sequence thousands of colonies a month for over three years.
+
+<img alt="cumulative wells sequenced plot" src="./img/cumulative-wells-sequenced.png" width="70%">
+
+### How OCTOPUS Works
 
 ![OCTOPUS overview](./img/overview.jpg)
 
 OCTOPUS is divided into six main steps.
-1. colony picking and overnight growth
-2. lysate and glycerol stock generation
+1. Colony picking and glycerol stock setup
+2. Overnight growth and lystate generation (_or rolling circle amplication_)
 3. iGenomX Riptide kit library preparation
 4. Illumina sequencing
-5. turn-key data analysis
-6. pick perfect sequences
+5. Turn-key data analysis
+6. Pick perfect sequences
 
-## Why we Love It
-
-We've used OCTOPUS to sequence ~10,000 plasmids in a 6 month period.
-
-![Plasmids over time](./img/wells-over-time.png)
-
-
-## Getting Started
-
-- [Installation](https://github.com/octantbio/octopus/wiki/Installation)
-- [Bench Protocol](https://github.com/octantbio/octopus/wiki/Bench-Protocol)
-- [Running the Analysis Pipeline](https://github.com/octantbio/octopus/wiki/Running-the-Analysis-Pipeline)
-
-## Diving Deeper
-
-- [Pipeline Details](https://github.com/octantbio/octopus/wiki/Pipeline-Details)
-- [Experimental Validation](https://github.com/octantbio/octopus/wiki/Experimental-Validation)
+Interested in learning more?
+[Check out our documentation for more information](./docs/).
 
 ## Contributing
 
-Please feel free to open an issue or pull request.
+We welcome any feedback to help make OCTOPUS better!
+If you encounter problems while running this pipeline or have suggestions for further improvements, please open an issue using our [issue tracker](https://github.com/octantbio/octopus/issues).
+
+Pull requests are also welcome.
 
 ## License
 
