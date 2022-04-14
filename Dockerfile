@@ -148,7 +148,7 @@ RUN set -u; \
 # python requirements 
 WORKDIR /usr/local
 RUN set -u; \
-    curl https://bootstrap.pypa.io/get-pip.py | python3 \
+    curl https://bootstrap.pypa.io/pip/3.6/get-pip.py | python3 \
     && pip install \
     pandas \
     numpy \

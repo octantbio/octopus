@@ -35,6 +35,7 @@ def compare_aggregated_stats(expected_fn: str, actual_fn: str):
                                 suffixes=("_expected", "_actual"))
 
     assert all_equal_or_NA(test_df, "DeNovo_Ref_expected", "DeNovo_Ref_actual")
+    assert all_equal_or_NA(test_df, "n_vars_expected", "n_vars_actual")
     assert all_equal_or_NA(test_df, "bc1_expected", "bc1_actual")
     assert all_equal_or_NA(test_df, "BC_Contam_expected", "BC_Contam_actual")
 
