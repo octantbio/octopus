@@ -32,4 +32,4 @@ jobs:
 
       # Takes ~30 min on a typical desktop computer.
       - name: Run pytest inside docker image 
-        run: docker run octopus /bin/bash -c "cd /opt/octopus; pytest"
+        run: docker run --entrypoint /bin/bash octopus -c "cd /opt/octopus; pytest"
