@@ -41,6 +41,6 @@ jobs:
         file: ./Dockerfile
         push: true
         # overwrite the previous 'latest' image and create a duplicate with today's date 
-        # tags: octantbio/octopus:latest, octantbio/octopus:${{ env.current_date }}
+        # tags: octant/octopus:latest, octant/octopus:${{ env.current_date }}
         tags: octant/octopus:${{ env.current_date }}
 
