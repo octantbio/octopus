@@ -216,3 +216,5 @@ ENV PYTHONIOENCODING utf8
 # It doesn't matter where this directory is, it just has to exist.
 RUN mkdir /data && chmod 777 /data
 WORKDIR /data
+
+ENTRYPOINT ["/opt/octopus/src/main.py"]
