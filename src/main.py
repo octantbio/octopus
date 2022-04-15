@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """Main script for running the computational pipeline.
 
-This script acts as an entrypoint into OCTOPUS. This does not replace any
-components of the pipeline, but simply spares users the trouble of dealing with
-the Makefile interface. All pipeline-level arguments (like "--mem") can be
-documented and dealt with here. Ultimately, this script simply calls `make`.
+This script acts as an entrypoint into the OCTOPUS docker image. This does not
+replace any components of the pipeline, but simply spares users the trouble of
+dealing with the Makefile interface. All pipeline-level arguments (like "--mem")
+can be documented and dealt with here. Ultimately, this script simply calls
+`make`.
 Example usage of this script:
 
     /path/to/main.py
 
-In practice, this script is used as an entrypoint to our Docker container
-
-Users who want more control should simply bypass this script and continue to 
+Users who want more control should simply bypass this script and continue to
 work with `make` directly.
 """
 import argparse
@@ -23,18 +22,75 @@ from pathlib import Path
 OCTOPUS_PATH = Path(__file__).parent.parent
 
 
-def check_illumina_dir(seq_dir: Path):
+def check_illumina_dir(seq_dir: Path) -> bool:
     """Checks that seq_dir is valid output dir from an Illumina sequencer."""
 
-    # TODO:
-    # Check if it exists
-    #  hint to user that they may have messed up their docker mounting
-    #  Warn on relative paths (~, ..)
-    # Check that it is readable (permissions)
-    # Check for all of the requisite files
-    #  perhaps print out a tree in the case of an issue?
-    # Check that a SampleSheet is present
-    # Warn on no input.fa
+    try:
+        seq_dir_exists = seq_dir.exists()
+    except PermissionError as pe:
+        print(f"I can't find '{seq_dir}' because I don't have permission to "
+              f"access '{pe.filename}'.")
+        return False
+
+    if not seq_dir_exists:
+        print(f"I couldn't find a folder / directory with name '{seq_dir}'.\n")
+
+        if ".." in str(seq_dir):
+            print("Warning: relative paths with '../' don't work well with "
+                  "Docker.\n"
+                  "You may need to change to an absolute path.")
+        else:
+            print("If you're using Docker, be sure to mount the appropriate "
+                  "volumes with '-v'.\nFor example:\n"
+                  f'    docker run -v "$(pwd):/data" octant/octopus {seq_dir}')
+        return False
+    if not seq_dir.is_dir():
+        print(
+            f"I was expecting a folder / directory, but input '{seq_dir}' is "
+            "not a directory.\n")
+        return False
+
+    # smoke test to see if directory can be accessed
+    try:
+        next(seq_dir.iterdir())
+    except StopIteration:
+        pass
+    except PermissionError:
+        print(f"'{seq_dir}' exists but I can't seem to access it.\n"
+              "Please ensure your permissions are appropriate.")
+        return False
+
+    try:
+        if not (seq_dir / "SampleSheet.csv").exists():
+            # could not find SampleSheet.csv inside illumina sequencing directory.
+            print("I couldn't find a 'SampleSheet.csv' inside directory "
+                  f"'{seq_dir}'.\n"
+                  "You can find an example SampleSheet here:\n"
+                  "https://github.com/octantbio/octopus/blob/master/test/"
+                  "pOK_barcode_test/SampleSheet.csv")
+            return False
+
+        fastq_location = seq_dir / "Data" / "Intensities" / "BaseCalls"
+        files = list(fastq_location.glob("*.fastq.gz"))
+        if not files:
+            print(
+                f"I couldn't find any '.fastq.gz' files in '{fastq_location}'\n"
+                "Please make sure your data have been demultiplexed and placed "
+                "in that location.")
+            return False
+
+        if not (seq_dir / "input.fasta").exists():
+            print(
+                "Warning: I couldn't find a reference 'input.fasta' inside input "
+                f"directory '{seq_dir}'.\n"
+                "Pipeline will only perform de-novo alignment.\n")
+
+    except PermissionError as perm_err:
+        print(
+            f"File '{perm_err.filename}' exists, but I don't have permission "
+            "to access it.")
+
+    return True
 
 
 def setup_run_dir(run_dir: Path, seq_dir: Path, out_dir: Path) -> Path:
@@ -65,7 +121,12 @@ def start_run(seq_dir: Path, out_dir: Path):
     """Starts an OCTOPUS run based with given sequence directory as input."""
     # Warn if running as root?
 
-    check_illumina_dir(seq_dir)
+    print(
+        "Checking that the provided sequencing directory has all the expected "
+        "files...\n")
+    if not check_illumina_dir(seq_dir):
+        print("\nAborting pipeline due to the above error.")
+        exit(1)
 
     run_dir = Path(tempfile.mkdtemp())
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -78,7 +139,7 @@ def start_run(seq_dir: Path, out_dir: Path):
         # point to Makefile in OCTOPUS directory
         "-f", f"{OCTOPUS_PATH}/Makefile",
         # `make` recipe
-        # TODO: make this stop at the appropriate file
+        # TODO: optionally make this stop at a user-defined file
         f"pipeline/{out_dir.name}/aggregated-stats.tsv"
     ]
     # yapf: enable
@@ -102,11 +163,10 @@ parser = argparse.ArgumentParser(
     epilog="Visit https://github.com/octantbio/octopus for further help.",
     formatter_class=argparse.RawDescriptionHelpFormatter)
 
-parser.add_argument(
-    "seq_dir",
-    metavar="ILLUMINA_SEQ_DIR",
-    help="Path to an output directory from an Illumina sequencer",
-    type=Path)
+parser.add_argument("seq_dir",
+                    metavar="ILLUMINA_SEQ_DIR",
+                    help="Path to an directory from an Illumina sequencer",
+                    type=Path)
 
 parser.add_argument("-o",
                     "--out-dir",
@@ -122,5 +182,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.out_dir is None:
         args.out_dir = Path(f"pipeline/{args.seq_dir}")
+        print("No output directory provided, I'll put pipeline results in "
+              f"'{args.out_dir}'.")
     returncode = start_run(**vars(args))
     exit(returncode)
