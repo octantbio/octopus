@@ -111,7 +111,7 @@ def setup_run_dir(run_dir: Path, seq_dir: Path, out_dir: Path) -> Path:
     (run_dir / "data").mkdir(exist_ok=True)
     (run_dir / "data" / seq_dir.name).symlink_to(seq_dir.resolve())
     (run_dir / "pipeline").mkdir()
-    (run_dir / "pipeline" / out_dir.name).symlink_to(out_dir.resolve())
+    (run_dir / "pipeline" / seq_dir.name).symlink_to(out_dir.resolve())
 
     # HACK: Makefile uses relative paths, so we link to the src as a workaround
     (run_dir / "src").symlink_to(OCTOPUS_PATH / "src")
@@ -140,7 +140,7 @@ def start_run(seq_dir: Path, out_dir: Path):
         "-f", f"{OCTOPUS_PATH}/Makefile",
         # `make` recipe
         # TODO: optionally make this stop at a user-defined file
-        f"pipeline/{out_dir.name}/aggregated-stats.tsv"
+        f"pipeline/{seq_dir.name}/aggregated-stats.tsv"
     ]
     # yapf: enable
 
@@ -172,7 +172,8 @@ parser.add_argument("-o",
                     "--out-dir",
                     metavar="DIR",
                     help="Output directory for resulting files "
-                    "(default: 'pipeline/[ILLUMINA_SEQ_DIR]')")
+                    "(default: 'pipeline/[ILLUMINA_SEQ_DIR]')",
+                    type=Path)
 
 # It's easier to refer to intermediate files with `make`, but assigning names to
 # pipeline stages in the future could be nice.
