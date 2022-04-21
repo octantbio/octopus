@@ -1,14 +1,38 @@
-import sys
 from opentrons import protocol_api
+
 
 metadata = {
     'apiLevel': '2.12',
-    'protocolName': 'OCTOPUS OT-2 Protocol: SSH, All Stages, Offset Calibrated',
+    'protocolName': 'OCTOPUS OT-2 Protocol: SSH-compatible, All Stages, Offset Calibrated',
     'author': 'Octant',
-    'description': 'OT-2 Protocol for running Twist 96-Plex Library Kit (formally iGenomX RIPTIDE) preparation adapted for OCTOPUS. This version is for running on the OT-2 directly through SSH, including offset calibration, and runs through all stages.'
+    'description': 'v1.0.0'
 }
 
+
 def run(protocol: protocol_api.ProtocolContext):
+    """
+    OT-2 Protocol for running select steps of the Twist 96-Plex protocol 
+    (formally iGenomX RIPTIDE) adapted for OCTOPUS and sequencing on 
+    Illumina MiSeq with the MiSeq Reagent Micro Kit v2 (300-cycles).
+
+    After running the main thermocycler protocol in "A Reaction" and adding EDTA, 
+    the samples can thereafter be processed by the OT-2 for the rest of 
+    the Twist 96-Plex protocol up to final validation/quantification 
+    for sequencer loading.
+
+    This specific layout allows for running on the OT-2 directly through SSH, 
+    includes offset-calibration templates, and runs through all stages.
+
+    The following equipment/labware are assumed:
+    1x  8-Channel P300 (GEN2)
+    1x  8-Channel P20 (GEN2)
+    1x  Magnetic Module
+    4x  Opentrons 96 Filter Tip Rack 200 uL
+    1x  Opentrons 96 Filter Tip Rack 20 uL
+    3x  Bio-Rad 96 Well Plate 200 uL PCR
+    2x  Applied Biosystems MicroAmp 384 Well Plate 40 uL
+    1x  NEST 96 Deepwell Plate 2mL
+    """
     ### specify the number of plates to process: integer between 1 and 8 inclusive
     number_of_plates = 0
     ### specify True if running protocol on OT-2 command line, otherwise False
@@ -20,7 +44,21 @@ def run(protocol: protocol_api.ProtocolContext):
     Run.Post_Pool()
     protocol.set_rail_lights(False)
 
+
 class OCTOPUS:
+    """The OCTOPUS class serves as a container for all steps of Twist 96-Plex protocol that can involve the OT-2.
+
+    It splits the overall protocol into two stages: Pool and Post-pool. From the perspective of the OT-2, these
+    stages differ in which labware the Magnetic Module holds. The Pool Stage steps require larger reagent volumes, 
+    requiring a large plate. Once space on that plate is exhausted, a smaller plate that is more size appropriate 
+    replaces it for the duration of the Post-pool Stage.
+
+    The state of SSH Mode is required since this mode is incompatible with the Opentrons App as of Server Version 5.0.2.
+
+    Each OT-2 robot will have its own offset-calibration numbers. The ones here are only for the OT-2 used at Octant. 
+    To determine the offset calibrations one's own OT-2, Opentrons has the following guide:
+    https://support.opentrons.com/en/articles/5901728-how-to-prepare-jupyter-notebook-and-opentrons_execute-for-5-0-0
+    """
     def __init__(self, protocol, ssh_mode=False):
         ### tip-rack definitions
             # opentrons 200 ul filtered tips
@@ -55,6 +93,15 @@ class OCTOPUS:
         self.ssh_mode = ssh_mode
 
     def Pool(self, num_plates=0):
+        """Pool Stage.
+
+        The OT-2 takes over after EDTA has been added to the 384-well Reaction A Plates containing the plate samples.
+
+        The Magnetic Module holds a deep-well plate during this stage.
+
+        Arguments:
+        num_plates -- Specifies how many plates to pool. This defaults to an exception.
+        """
         NUM_PLATES = num_plates
         if NUM_PLATES < 1 or NUM_PLATES > 8:
             raise Exception("Error: Number of plates must be between 1 and 8 inclusive.")
@@ -70,7 +117,7 @@ class OCTOPUS:
         if SSH_MODE:
             self.pool_plate.set_offset(x=0.10, y=1.60, z=0.00)
             self.dna_plate.set_offset(x=0.40, y=1.10, z=0.10)
-            self.consolidation_plate.set_offset(x=0.30, y=1.10, z=0.00)
+            self.consolidation_plate.set_offset(x=0.10, y=1.10, z=0.00)
             self.pre_pool_plate_1.set_offset(x=0.00, y=0.80, z=0.60)
             self.pre_pool_plate_2.set_offset(x=0.00, y=0.80, z=0.60)
 
@@ -268,6 +315,18 @@ class OCTOPUS:
         self.protocol.home()
 
     def Post_Pool(self):
+        """Post-pool Stage.
+
+        Corresponds to the following steps from Twist 96-Plex protocol:
+        Step 2: DNA Capture and Library Conversion
+        Step 3: Amplification
+        Step 4: Purification and Size Selection
+
+        The Magnetic Module holds a PCR plate during this stage.
+
+        Note that this stage operates independently from the number of plates for the run since the plates 
+        are assumed to have already consolidated to a single column.
+        """
         ### redefine labware placements specific to Post-pool stage
         self.protocol.deck['9']._labware = None
         self.dna_plate = self.mag_mod.load_labware('biorad_96_wellplate_200ul_pcr', label='DNA Plate')
@@ -285,6 +344,7 @@ class OCTOPUS:
         self.Size_Selection()
 
     def DNA_Capture_Library_Conversion(self):
+        """Perform capture of extended terminated ssDNA library followed by conversion to dsDNA."""
         SSH_MODE = self.ssh_mode
 
         ### reagent locations
@@ -295,10 +355,10 @@ class OCTOPUS:
 
         ### prepare Capture Beads
         if SSH_MODE:
-            input('Manually add 20 ul Capture Beads to column 2 of DNA Plate')
+            input('Manually add 20 ul Capture Beads to column 2 of DNA Plate for each plate.')
             input("ARE YOU SURE? Press ENTER to continue.")
         else:
-            self.protocol.pause('Manually add 20 ul Capture Beads to column 2 of DNA Plate')
+            self.protocol.pause('Manually add 20 ul Capture Beads down column 2 of DNA Plate for each plate.')
         self.mag_mod.engage()
         self.protocol.delay(minutes=4)
         #self.discard_supernatant(20, self.dna_plate.wells_by_name()['A2'])
@@ -385,6 +445,7 @@ class OCTOPUS:
         self.protocol.home()
 
     def Library_Amplification(self):
+        """Amplify libraries using universal and index specific amplification primers."""
         SSH_MODE = self.ssh_mode
 
         ### reagent locations
@@ -445,6 +506,10 @@ class OCTOPUS:
         self.mag_mod.disengage()
 
     def Size_Selection(self):
+        """Purification of DNA libraries and double sided size selection.
+
+        Volumes optimized for 2 x 150 read lengths for Illumina MiSeq.
+        """
         SSH_MODE = self.ssh_mode
 
         ### reagent locations
@@ -509,13 +574,19 @@ class OCTOPUS:
 
         ### wash with 80% ethanol twice
         self.set_flow_rate(48, 48, 48)
-        self.p300.transfer(150, Ethanol[0], self.dna_plate.wells_by_name()['A4'])
-        self.protocol.delay(seconds=30)
+        self.p300.pick_up_tip()
+        self.p300.aspirate(150, Ethanol[0])
+        self.p300.dispense(150, self.dna_plate.wells_by_name()['A4'])
+        self.p300.move_to(self.dna_plate.wells_by_name()['A4'].top(z=10.0))
+        self.protocol.delay(seconds=40)
         self.discard_supernatant(150, self.dna_plate.wells_by_name()['A4'])
             # second time
         self.set_flow_rate(48, 48, 48)
-        self.p300.transfer(150, Ethanol[1], self.dna_plate.wells_by_name()['A4'])
-        self.protocol.delay(seconds=30)
+        self.p300.pick_up_tip()
+        self.p300.aspirate(150, Ethanol[1])
+        self.p300.dispense(150, self.dna_plate.wells_by_name()['A4'])
+        self.p300.move_to(self.dna_plate.wells_by_name()['A4'].top(z=10.0))
+        self.protocol.delay(seconds=40)
         self.discard_supernatant(150, self.dna_plate.wells_by_name()['A4'])
             # guarantee discard of residual ethanol
         self.set_flow_rate(1, 48, 48)
@@ -556,6 +627,7 @@ class OCTOPUS:
         self.protocol.home()
 
     def set_flow_rate(self, aspirate=96, dispense=96, blow_out=96):
+        """Set the speeds (in uL/s) for all pipettes."""
         self.p300.flow_rate.aspirate = aspirate
         self.p300.flow_rate.dispense = dispense
         self.p300.flow_rate.blow_out = blow_out
@@ -564,6 +636,7 @@ class OCTOPUS:
         self.p20.flow_rate.blow_out = blow_out
 
     def discard_supernatant(self, vol, well, trash=None):
+        """Discard liquid from wells using the P300 multi-channel."""
         if trash is None:
             trash = self.protocol.fixed_trash['A1']
         if not self.p300.has_tip:
@@ -581,6 +654,7 @@ class OCTOPUS:
         self.set_flow_rate(48, 48, 48)
 
     def discard_residual(self, well):
+        """Discard remaining liquid from wells using the P20 multi-channel."""
         self.set_flow_rate(1, 48, 48)
         self.p20.pick_up_tip()
         self.p20.aspirate(5, well.bottom())
