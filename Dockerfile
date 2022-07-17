@@ -148,7 +148,7 @@ RUN set -u; \
 # python requirements 
 WORKDIR /usr/local
 RUN set -u; \
-    curl https://bootstrap.pypa.io/get-pip.py | python3 \
+    curl https://bootstrap.pypa.io/pip/3.6/get-pip.py | python3 \
     && pip install \
     pandas \
     numpy \
@@ -199,12 +199,22 @@ RUN install2.r --error \
     gert \
     optparse
 
+
 #===============================================================================
 # set up this version of the pipeline inside the image under /opt
 RUN mkdir -p /opt/octopus/data /opt/octopus/pipeline
 # copy latest source code, test data, and Makefile
-COPY src/ /opt/octopus/src/
 COPY test/ /opt/octopus/test
+COPY src/ /opt/octopus/src/
 COPY LICENSE Makefile /opt/octopus/
 
-WORKDIR /home
+# Really important: let Python print emojis
+# (with LANG unset python defaults to ASCII and we get UnicodeEncodeError)
+ENV PYTHONIOENCODING utf8
+
+# Create a directory that allows anyone to dump anything into it.
+# It doesn't matter where this directory is, it just has to exist.
+RUN mkdir /data && chmod 777 /data
+WORKDIR /data
+
+ENTRYPOINT ["/opt/octopus/src/main.py"]
