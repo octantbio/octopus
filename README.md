@@ -1,3 +1,9 @@
+# In June 2023, we released a new method allowing _next-day_ turnaround of high-throughput full plasmid sequencing from colonies, more info in the OCTOPUS 3.0 repo: [octopus3](https://github.com/octantbio/octopus3/)
+As for this older repo, you can still find info relating to the OCTOPUS v2.0 method and earlier. However, we are no longer contributing/maintaining this repo.
+
+---
+
+
 ![OCTOPUS logo](./img/octopus-logo.png)
 
 [![pytest-integration](https://github.com/octantbio/octopus/actions/workflows/pytest-integration.yml/badge.svg)](https://github.com/octantbio/octopus/actions/workflows/pytest-integration.yml)
